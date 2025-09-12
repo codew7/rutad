@@ -1,0 +1,2721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión - Taller Mecánico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            --background-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 2px;
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .nav-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .nav-tab .tab-icon {
+            margin-right: 0.5rem;
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            min-height: calc(100vh - 140px);
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: var(--accent-yellow);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .action-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--accent-green);
+        }
+
+        .stat-change.negative {
+            color: var(--accent-red);
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--surface-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .table tr:hover {
+            background: rgba(37, 99, 235, 0.02);
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .status-delivered {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-tabs {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--surface-color);
+                box-shadow: var(--shadow-lg);
+            }
+
+            .nav-tabs.show {
+                display: flex;
+            }
+
+            .nav-tab {
+                border-bottom: none;
+                border-left: 3px solid transparent;
+                padding: 1rem;
+            }
+
+            .nav-tab.active {
+                border-left-color: var(--primary-color);
+                border-bottom: none;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-bar-left,
+            .action-bar-right {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .search-container {
+                max-width: none;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                padding: 0 0.5rem;
+            }
+
+            .logo {
+                font-size: 1.25rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .action-bar-right {
+                gap: 0.5rem;
+            }
+
+            .action-bar-right .btn {
+                flex: 1;
+            }
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+            background: var(--surface-color);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-error {
+            color: var(--accent-red);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            padding: 1rem;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--border-color);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--accent-green);
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--accent-yellow);
+            color: #92400e;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--accent-red);
+            color: #991b1b;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header,
+            .nav-container,
+            .action-bar,
+            .btn,
+            button {
+                display: none !important;
+            }
+
+            .main-container {
+                padding: 0;
+                max-width: none;
+            }
+
+            .card {
+                box-shadow: none;
+                border: 1px solid #000;
+                page-break-inside: avoid;
+            }
+
+            .page-section {
+                display: block !important;
+            }
+
+            .table {
+                font-size: 12px;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Dynamic table styles */
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-actions .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        /* Chart styles */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: var(--surface-color);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: end;
+            gap: 0.5rem;
+            height: 200px;
+        }
+
+        .chart-column {
+            background: var(--primary-color);
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .chart-column:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🔧</div>
+                <span>TallerPro</span>
+            </div>
+            
+            <div class="user-info">
+                <span>Taller Mecánico</span>
+                <div class="user-avatar">TM</div>
+            </div>
+            
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                ☰
+            </button>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-content">
+            <div class="nav-tabs" id="navTabs">
+                <button class="nav-tab active" onclick="showSection('dashboard')" data-section="dashboard">
+                    <span class="tab-icon">📊</span>
+                    Dashboard
+                </button>
+                <button class="nav-tab" onclick="showSection('presupuestos')" data-section="presupuestos">
+                    <span class="tab-icon">📋</span>
+                    Presupuestos
+                </button>
+                <button class="nav-tab" onclick="showSection('trabajos')" data-section="trabajos">
+                    <span class="tab-icon">🔧</span>
+                    Trabajos
+                </button>
+                <button class="nav-tab" onclick="showSection('gastos')" data-section="gastos">
+                    <span class="tab-icon">💰</span>
+                    Gastos
+                </button>
+                <button class="nav-tab" onclick="showSection('facturas')" data-section="facturas">
+                    <span class="tab-icon">🧾</span>
+                    Facturas
+                </button>
+                <button class="nav-tab" onclick="showSection('reportes')" data-section="reportes">
+                    <span class="tab-icon">📈</span>
+                    Reportes
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page-section active">
+            <div class="action-bar">
+                <div class="action-bar-left">
+                    <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary);">Dashboard</h1>
+                </div>
+                <div class="action-bar-right">
+                    <button class="btn btn-outline btn-sm">
+                        📊 Exportar Datos
+                    </button>
+                    <button class="btn btn-primary btn-sm">
+                        ⚙️ Configuración
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Ingresos Hoy</div>
+                            <div class="stat-value">$2,450</div>
+                            <div class="stat-change positive">
+                                ↗️ +12.5% vs ayer
+                            </div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-green);">💵</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Trabajos Activos</div>
+                            <div class="stat-value">8</div>
+                            <div class="stat-change positive">
+                                ↗️ +2 nuevos
+                            </div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--primary-color);">🔧</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Presupuestos Pendientes</div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-change negative">
+                                ↘️ -3 vs ayer
+                            </div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-yellow);">📋</div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Ganancia del Mes</div>
+                            <div class="stat-value">$18,320</div>
+                            <div class="stat-change positive">
+                                ↗️ +8.2% vs mes anterior
+                            </div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-green);">📈</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        🕒 Actividad Reciente
+                    </h3>
+                    <button class="btn btn-outline btn-sm">Ver Todo</button>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Servicio</th>
+                                    <th>Estado</th>
+                                    <th>Monto</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Juan Pérez</td>
+                                    <td>Cambio de aceite y filtros</td>
+                                    <td><span class="status-badge status-completed">✅ Completado</span></td>
+                                    <td>$150.00</td>
+                                    <td>Hoy 14:30</td>
+                                </tr>
+                                <tr>
+                                    <td>María González</td>
+                                    <td>Reparación de frenos</td>
+                                    <td><span class="status-badge status-pending">⏳ En proceso</span></td>
+                                    <td>$420.00</td>
+                                    <td>Hoy 10:15</td>
+                                </tr>
+                                <tr>
+                                    <td>Carlos López</td>
+                                    <td>Diagnóstico general</td>
+                                    <td><span class="status-badge status-delivered">🚗 Entregado</span></td>
+                                    <td>$80.00</td>
+                                    <td>Ayer 16:45</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Presupuestos Section -->
+        <section id="presupuestos" class="page-section">
+            <div class="action-bar">
+                <div class="action-bar-left">
+                    <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary);">Presupuestos</h1>
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchPresupuestos" placeholder="Buscar por cliente o número..." oninput="filtrarPresupuestos()">
+                    </div>
+                </div>
+                <div class="action-bar-right">
+                    <button class="btn btn-outline btn-sm" onclick="exportarPresupuestos()">
+                        📊 Exportar
+                    </button>
+                    <button class="btn btn-primary" onclick="abrirModalPresupuesto()">
+                        ➕ Nuevo Presupuesto
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        📋 Lista de Presupuestos
+                    </h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select class="form-select" style="width: auto;" onchange="filtrarPorEstado(this.value)">
+                            <option value="">Todos los estados</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="Aprobado">Aprobados</option>
+                            <option value="Rechazado">Rechazados</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaPresupuestos">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trabajos Section -->
+        <section id="trabajos" class="page-section">
+            <div class="action-bar">
+                <div class="action-bar-left">
+                    <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary);">Trabajos</h1>
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchTrabajos" placeholder="Buscar trabajos..." oninput="filtrarTrabajos()">
+                    </div>
+                </div>
+                <div class="action-bar-right">
+                    <button class="btn btn-outline btn-sm" onclick="exportarTrabajos()">
+                        📊 Exportar
+                    </button>
+                    <button class="btn btn-primary" onclick="abrirModalTrabajo()">
+                        ➕ Nuevo Trabajo
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">En Proceso</div>
+                            <div class="stat-value" id="trabajosEnProceso">0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-yellow);">⏳</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Completados Hoy</div>
+                            <div class="stat-value" id="trabajosCompletadosHoy">0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-green);">✅</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Ganancia del Día</div>
+                            <div class="stat-value" id="gananciaDelDia">$0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--primary-color);">💰</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🔧 Lista de Trabajos</h3>
+                    <select class="form-select" style="width: auto;" onchange="filtrarTrabajosPorEstado(this.value)">
+                        <option value="">Todos los estados</option>
+                        <option value="En proceso">En Proceso</option>
+                        <option value="Completado">Completados</option>
+                        <option value="Entregado">Entregados</option>
+                    </select>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Servicio</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Costo</th>
+                                    <th>Ganancia</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaTrabajos">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gastos Section -->
+        <section id="gastos" class="page-section">
+            <div class="action-bar">
+                <div class="action-bar-left">
+                    <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary);">Gastos</h1>
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchGastos" placeholder="Buscar gastos..." oninput="filtrarGastos()">
+                    </div>
+                </div>
+                <div class="action-bar-right">
+                    <button class="btn btn-outline btn-sm" onclick="exportarGastos()">
+                        📊 Exportar
+                    </button>
+                    <button class="btn btn-primary" onclick="abrirModalGasto()">
+                        ➕ Registrar Gasto
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Gastos del Mes</div>
+                            <div class="stat-value" id="gastosDelMes">$0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-red);">💸</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Gastos Fijos</div>
+                            <div class="stat-value" id="gastosFijos">$0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--secondary-color);">🏢</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Gastos Variables</div>
+                            <div class="stat-value" id="gastosVariables">$0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-yellow);">📈</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">💰 Registro de Gastos</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select class="form-select" style="width: auto;" onchange="filtrarGastosPorCategoria(this.value)">
+                            <option value="">Todas las categorías</option>
+                            <option value="Fijo">Gastos Fijos</option>
+                            <option value="Variable">Gastos Variables</option>
+                        </select>
+                        <input type="month" class="form-input" style="width: auto;" onchange="filtrarGastosPorMes(this.value)">
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th>Categoría</th>
+                                    <th>Tipo</th>
+                                    <th>Monto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaGastos">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Facturas Section -->
+        <section id="facturas" class="page-section">
+            <div class="action-bar">
+                <div class="action-bar-left">
+                    <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary);">Facturas</h1>
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchFacturas" placeholder="Buscar por número o cliente..." oninput="filtrarFacturas()">
+                    </div>
+                </div>
+                <div class="action-bar-right">
+                    <button class="btn btn-outline btn-sm" onclick="exportarFacturas()">
+                        📊 Exportar
+                    </button>
+                    <button class="btn btn-primary" onclick="abrirModalFactura()">
+                        ➕ Nueva Factura
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Facturas del Mes</div>
+                            <div class="stat-value" id="facturasDelMes">0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--primary-color);">🧾</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Pagadas</div>
+                            <div class="stat-value" id="facturasPagadas">0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-green);">✅</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Pendientes</div>
+                            <div class="stat-value" id="facturasPendientes">0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-yellow);">⏳</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Total Facturado</div>
+                            <div class="stat-value" id="totalFacturado">$0</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-green);">💰</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🧾 Lista de Facturas</h3>
+                    <select class="form-select" style="width: auto;" onchange="filtrarFacturasPorEstado(this.value)">
+                        <option value="">Todos los estados</option>
+                        <option value="Pagada">Pagadas</option>
+                        <option value="Pendiente">Pendientes</option>
+                        <option value="Vencida">Vencidas</option>
+                    </select>
+                </div>
+                <div class="card-content">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Vencimiento</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaFacturas">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reportes Section -->
+        <section id="reportes" class="page-section">
+            <div class="action-bar">
+                <div class="action-bar-left">
+                    <h1 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary);">Reportes</h1>
+                </div>
+                <div class="action-bar-right">
+                    <button class="btn btn-primary" onclick="generarReporte()">
+                        📊 Generar Reporte
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <h3 class="card-title">📅 Filtros de Reporte</h3>
+                </div>
+                <div class="card-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Desde</label>
+                            <input type="date" class="form-input" id="fechaDesde">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hasta</label>
+                            <input type="date" class="form-input" id="fechaHasta">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Reporte</label>
+                            <select class="form-select" id="tipoReporte">
+                                <option value="general">Reporte General</option>
+                                <option value="ingresos">Solo Ingresos</option>
+                                <option value="gastos">Solo Gastos</option>
+                                <option value="ganancias">Análisis de Ganancias</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-bottom: 2rem;" id="reporteStats">
+                <!-- Stats del reporte se cargan dinámicamente -->
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📈 Gráfico de Ingresos vs Gastos</h3>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <div class="chart-bar" id="chartIngresos">
+                            <!-- Gráfico generado dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📋 Detalle del Reporte</h3>
+                    <button class="btn btn-outline btn-sm" onclick="imprimirReporte()">
+                        🖨️ Imprimir
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div id="detalleReporte">
+                        <p style="text-align: center; color: var(--text-secondary); padding: 2rem;">
+                            Selecciona las fechas y genera un reporte para ver los datos
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modales -->
+    
+    <!-- Modal Presupuesto -->
+    <div class="modal" id="modalPresupuesto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📋 Nuevo Presupuesto</h2>
+                <button class="modal-close" onclick="cerrarModal('modalPresupuesto')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formPresupuesto">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-input" id="clienteNombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-input" id="clienteTelefono">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Vehículo</label>
+                            <input type="text" class="form-input" id="vehiculo" placeholder="Marca Modelo Año" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-input" id="fechaPresupuesto" required>
+                        </div>
+                    </div>
+
+                    <h4 style="margin: 1.5rem 0 1rem 0;">Repuestos y Servicios</h4>
+                    <div id="repuestosContainer">
+                        <div class="form-row repuesto-item">
+                            <div class="form-group">
+                                <label class="form-label">Descripción</label>
+                                <input type="text" class="form-input repuesto-desc" placeholder="Filtro de aceite">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cantidad</label>
+                                <input type="number" class="form-input repuesto-cant" value="1" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Precio Unit.</label>
+                                <input type="number" class="form-input repuesto-precio" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Costo</label>
+                                <input type="number" class="form-input repuesto-costo" step="0.01" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="agregarRepuesto()">➕ Agregar Item</button>
+
+                    <h4 style="margin: 1.5rem 0 1rem 0;">Mano de Obra</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Horas</label>
+                            <input type="number" class="form-input" id="manoObraHoras" step="0.5" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tarifa por Hora</label>
+                            <input type="number" class="form-input" id="tarifaHora" step="0.01" min="0" value="25.00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-textarea" id="observaciones" placeholder="Notas adicionales..."></textarea>
+                    </div>
+
+                    <div style="background: var(--background-color); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                        <h4>Total del Presupuesto: $<span id="totalPresupuesto">0.00</span></h4>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalPresupuesto')">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarPresupuesto()">Guardar Presupuesto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Trabajo -->
+    <div class="modal" id="modalTrabajo">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🔧 Nuevo Trabajo</h2>
+                <button class="modal-close" onclick="cerrarModal('modalTrabajo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formTrabajo">
+                    <div class="form-group">
+                        <label class="form-label">Basado en Presupuesto</label>
+                        <select class="form-select" id="presupuestoBase" onchange="cargarDatosPresupuesto()">
+                            <option value="">Seleccionar presupuesto...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-input" id="trabajoCliente" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vehículo</label>
+                            <input type="text" class="form-input" id="trabajoVehiculo" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-input" id="fechaInicioTrabajo" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="estadoTrabajo">
+                                <option value="En proceso">En proceso</option>
+                                <option value="Completado">Completado</option>
+                                <option value="Entregado">Entregado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Descripción del Trabajo</label>
+                        <textarea class="form-textarea" id="descripcionTrabajo" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Costo Total</label>
+                            <input type="number" class="form-input" id="costoTrabajo" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Precio de Venta</label>
+                            <input type="number" class="form-input" id="precioTrabajo" step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--background-color); padding: 1rem; border-radius: 8px;">
+                        <h4>Ganancia Estimada: $<span id="gananciaTrabajo">0.00</span></h4>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalTrabajo')">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarTrabajo()">Guardar Trabajo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gasto -->
+    <div class="modal" id="modalGasto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">💰 Registrar Gasto</h2>
+                <button class="modal-close" onclick="cerrarModal('modalGasto')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formGasto">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-input" id="fechaGasto" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Monto</label>
+                            <input type="number" class="form-input" id="montoGasto" step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" id="tipoGasto" required>
+                                <option value="Fijo">Gasto Fijo</option>
+                                <option value="Variable">Gasto Variable</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" id="categoriaGasto" required>
+                                <option value="Alquiler">Alquiler</option>
+                                <option value="Salarios">Salarios</option>
+                                <option value="Servicios">Servicios (luz, agua, etc.)</option>
+                                <option value="Herramientas">Herramientas</option>
+                                <option value="Equipamiento">Equipamiento</option>
+                                <option value="Impuestos">Impuestos</option>
+                                <option value="Mantenimiento">Mantenimiento</option>
+                                <option value="Otros">Otros</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-textarea" id="descripcionGasto" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalGasto')">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarGasto()">Guardar Gasto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Factura -->
+    <div class="modal" id="modalFactura">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🧾 Nueva Factura</h2>
+                <button class="modal-close" onclick="cerrarModal('modalFactura')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formFactura">
+                    <div class="form-group">
+                        <label class="form-label">Basada en Trabajo</label>
+                        <select class="form-select" id="trabajoBase" onchange="cargarDatosTrabajo()">
+                            <option value="">Seleccionar trabajo completado...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-input" id="facturaCliente" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Número de Factura</label>
+                            <input type="text" class="form-input" id="numeroFactura" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-input" id="fechaFactura" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vencimiento</label>
+                            <input type="date" class="form-input" id="vencimientoFactura" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-textarea" id="descripcionFactura" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Subtotal</label>
+                            <input type="number" class="form-input" id="subtotalFactura" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">IVA (%)</label>
+                            <input type="number" class="form-input" id="ivaFactura" value="21" step="0.01" min="0">
+                        </div>
+                    </div>
+
+                    <div style="background: var(--background-color); padding: 1rem; border-radius: 8px;">
+                        <h4>Total: $<span id="totalFactura">0.00</span></h4>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalFactura')">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarFactura()">Guardar Factura</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let tallerData = {
+            presupuestos: [],
+            trabajos: [],
+            gastos: [],
+            facturas: [],
+            configuracion: {
+                nombreTaller: "TallerPro",
+                telefono: "",
+                direccion: "",
+                tarifaHora: 25.00,
+                proximoNumeroFactura: 1
+            }
+        };
+
+        let presupuestoEditando = null;
+        let trabajoEditando = null;
+        let gastoEditando = null;
+        let facturaEditando = null;
+
+        // === FUNCIONES DE NAVEGACIÓN ===
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const activeTab = document.querySelector(`[data-section="${sectionId}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // Close mobile menu if open
+            document.getElementById('navTabs').classList.remove('show');
+
+            // Cargar datos de la sección
+            switch(sectionId) {
+                case 'dashboard':
+                    actualizarDashboard();
+                    break;
+                case 'presupuestos':
+                    cargarPresupuestos();
+                    break;
+                case 'trabajos':
+                    cargarTrabajos();
+                    break;
+                case 'gastos':
+                    cargarGastos();
+                    break;
+                case 'facturas':
+                    cargarFacturas();
+                    break;
+                case 'reportes':
+                    inicializarReportes();
+                    break;
+            }
+        }
+
+        function toggleMobileMenu() {
+            const navTabs = document.getElementById('navTabs');
+            navTabs.classList.toggle('show');
+        }
+
+        // === FUNCIONES DE ALMACENAMIENTO ===
+        function initializeStorage() {
+            const data = localStorage.getItem('tallerData');
+            if (data) {
+                tallerData = JSON.parse(data);
+            } else {
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('tallerData', JSON.stringify(tallerData));
+        }
+
+        // === FUNCIONES DE PRESUPUESTOS ===
+        function abrirModalPresupuesto(id = null) {
+            presupuestoEditando = id;
+            document.getElementById('modalPresupuesto').classList.add('show');
+            
+            // Establecer fecha actual
+            document.getElementById('fechaPresupuesto').value = new Date().toISOString().split('T')[0];
+            
+            if (id) {
+                const presupuesto = tallerData.presupuestos.find(p => p.id === id);
+                if (presupuesto) {
+                    cargarDatosPresupuesto(presupuesto);
+                }
+            } else {
+                limpiarFormularioPresupuesto();
+            }
+        }
+
+        function cargarDatosPresupuesto(presupuesto) {
+            document.getElementById('clienteNombre').value = presupuesto.cliente.nombre;
+            document.getElementById('clienteTelefono').value = presupuesto.cliente.telefono;
+            document.getElementById('vehiculo').value = presupuesto.cliente.vehiculo;
+            document.getElementById('fechaPresupuesto').value = presupuesto.fecha;
+            document.getElementById('manoObraHoras').value = presupuesto.manoObra.horas;
+            document.getElementById('tarifaHora').value = presupuesto.manoObra.tarifaHora;
+            document.getElementById('observaciones').value = presupuesto.observaciones || '';
+            
+            // Cargar repuestos
+            const container = document.getElementById('repuestosContainer');
+            container.innerHTML = '';
+            presupuesto.repuestos.forEach(repuesto => {
+                const div = crearRepuestoHTML();
+                const inputs = div.querySelectorAll('input');
+                inputs[0].value = repuesto.item;
+                inputs[1].value = repuesto.cantidad;
+                inputs[2].value = repuesto.precioUnitario;
+                inputs[3].value = repuesto.costo;
+                container.appendChild(div);
+            });
+            
+            calcularTotalPresupuesto();
+        }
+
+        function limpiarFormularioPresupuesto() {
+            document.getElementById('formPresupuesto').reset();
+            document.getElementById('fechaPresupuesto').value = new Date().toISOString().split('T')[0];
+            document.getElementById('tarifaHora').value = tallerData.configuracion.tarifaHora;
+            
+            const container = document.getElementById('repuestosContainer');
+            container.innerHTML = '';
+            container.appendChild(crearRepuestoHTML());
+            
+            calcularTotalPresupuesto();
+        }
+
+        function crearRepuestoHTML() {
+            const div = document.createElement('div');
+            div.className = 'form-row repuesto-item';
+            div.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Descripción</label>
+                    <input type="text" class="form-input repuesto-desc" placeholder="Filtro de aceite" onchange="calcularTotalPresupuesto()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" class="form-input repuesto-cant" value="1" min="1" onchange="calcularTotalPresupuesto()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio Unit.</label>
+                    <input type="number" class="form-input repuesto-precio" step="0.01" min="0" onchange="calcularTotalPresupuesto()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Costo</label>
+                    <input type="number" class="form-input repuesto-costo" step="0.01" min="0" onchange="calcularTotalPresupuesto()">
+                </div>
+                <div class="form-group" style="display: flex; align-items: end;">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarRepuesto(this)" style="margin-bottom: 0;">🗑️</button>
+                </div>
+            `;
+            return div;
+        }
+
+        function agregarRepuesto() {
+            const container = document.getElementById('repuestosContainer');
+            container.appendChild(crearRepuestoHTML());
+        }
+
+        function eliminarRepuesto(btn) {
+            const container = document.getElementById('repuestosContainer');
+            if (container.children.length > 1) {
+                btn.closest('.repuesto-item').remove();
+                calcularTotalPresupuesto();
+            }
+        }
+
+        function calcularTotalPresupuesto() {
+            let total = 0;
+            
+            // Sumar repuestos
+            const repuestos = document.querySelectorAll('.repuesto-item');
+            repuestos.forEach(item => {
+                const cantidad = parseFloat(item.querySelector('.repuesto-cant').value) || 0;
+                const precio = parseFloat(item.querySelector('.repuesto-precio').value) || 0;
+                total += cantidad * precio;
+            });
+            
+            // Sumar mano de obra
+            const horas = parseFloat(document.getElementById('manoObraHoras').value) || 0;
+            const tarifa = parseFloat(document.getElementById('tarifaHora').value) || 0;
+            total += horas * tarifa;
+            
+            document.getElementById('totalPresupuesto').textContent = total.toFixed(2);
+            return total;
+        }
+
+        function guardarPresupuesto() {
+            const form = document.getElementById('formPresupuesto');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Recopilar repuestos
+            const repuestos = [];
+            const repuestosItems = document.querySelectorAll('.repuesto-item');
+            repuestosItems.forEach(item => {
+                const desc = item.querySelector('.repuesto-desc').value;
+                const cant = parseFloat(item.querySelector('.repuesto-cant').value) || 0;
+                const precio = parseFloat(item.querySelector('.repuesto-precio').value) || 0;
+                const costo = parseFloat(item.querySelector('.repuesto-costo').value) || 0;
+                
+                if (desc && cant > 0 && precio > 0) {
+                    repuestos.push({
+                        item: desc,
+                        cantidad: cant,
+                        precioUnitario: precio,
+                        costo: costo
+                    });
+                }
+            });
+
+            const presupuesto = {
+                id: presupuestoEditando || `PRES-${Date.now()}`,
+                fecha: document.getElementById('fechaPresupuesto').value,
+                cliente: {
+                    nombre: document.getElementById('clienteNombre').value,
+                    telefono: document.getElementById('clienteTelefono').value,
+                    vehiculo: document.getElementById('vehiculo').value
+                },
+                repuestos: repuestos,
+                manoObra: {
+                    horas: parseFloat(document.getElementById('manoObraHoras').value) || 0,
+                    tarifaHora: parseFloat(document.getElementById('tarifaHora').value) || 0
+                },
+                observaciones: document.getElementById('observaciones').value,
+                total: calcularTotalPresupuesto(),
+                estado: 'Pendiente'
+            };
+
+            if (presupuestoEditando) {
+                const index = tallerData.presupuestos.findIndex(p => p.id === presupuestoEditando);
+                tallerData.presupuestos[index] = presupuesto;
+            } else {
+                tallerData.presupuestos.push(presupuesto);
+            }
+
+            saveData();
+            cerrarModal('modalPresupuesto');
+            cargarPresupuestos();
+            mostrarAlerta('Presupuesto guardado exitosamente', 'success');
+        }
+
+        function cargarPresupuestos() {
+            const tbody = document.getElementById('tablaPresupuestos');
+            tbody.innerHTML = '';
+
+            tallerData.presupuestos.forEach(presupuesto => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${presupuesto.id}</td>
+                    <td>${presupuesto.cliente.nombre}</td>
+                    <td>${presupuesto.cliente.vehiculo}</td>
+                    <td>${formatearFecha(presupuesto.fecha)}</td>
+                    <td>$${presupuesto.total.toFixed(2)}</td>
+                    <td><span class="status-badge status-${getStatusClass(presupuesto.estado)}">${presupuesto.estado}</span></td>
+                    <td class="table-actions">
+                        <button class="btn btn-sm btn-outline" onclick="verPresupuesto('${presupuesto.id}')">👁️</button>
+                        <button class="btn btn-sm btn-warning" onclick="abrirModalPresupuesto('${presupuesto.id}')">✏️</button>
+                        <button class="btn btn-sm btn-success" onclick="convertirATrabajos('${presupuesto.id}')">🔧</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarPresupuesto('${presupuesto.id}')">🗑️</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filtrarPresupuestos() {
+            const busqueda = document.getElementById('searchPresupuestos').value.toLowerCase();
+            const rows = document.querySelectorAll('#tablaPresupuestos tr');
+            
+            rows.forEach(row => {
+                const texto = row.textContent.toLowerCase();
+                row.style.display = texto.includes(busqueda) ? '' : 'none';
+            });
+        }
+
+        function filtrarPorEstado(estado) {
+            const rows = document.querySelectorAll('#tablaPresupuestos tr');
+            
+            rows.forEach(row => {
+                if (!estado) {
+                    row.style.display = '';
+                } else {
+                    const estadoCell = row.cells[5];
+                    row.style.display = estadoCell.textContent.includes(estado) ? '' : 'none';
+                }
+            });
+        }
+
+        function eliminarPresupuesto(id) {
+            if (confirm('¿Está seguro de eliminar este presupuesto?')) {
+                tallerData.presupuestos = tallerData.presupuestos.filter(p => p.id !== id);
+                saveData();
+                cargarPresupuestos();
+                mostrarAlerta('Presupuesto eliminado', 'success');
+            }
+        }
+
+        function convertirATrabajos(presupuestoId) {
+            const presupuesto = tallerData.presupuestos.find(p => p.id === presupuestoId);
+            if (presupuesto) {
+                abrirModalTrabajo();
+                // Cargar datos del presupuesto en el modal de trabajo
+                document.getElementById('trabajoCliente').value = presupuesto.cliente.nombre;
+                document.getElementById('trabajoVehiculo').value = presupuesto.cliente.vehiculo;
+                document.getElementById('descripcionTrabajo').value = `Trabajo basado en presupuesto ${presupuesto.id}`;
+                document.getElementById('precioTrabajo').value = presupuesto.total;
+                
+                // Estimar costo (70% del precio como ejemplo)
+                const costoEstimado = presupuesto.total * 0.7;
+                document.getElementById('costoTrabajo').value = costoEstimado.toFixed(2);
+                calcularGananciaTrabajo();
+            }
+        }
+
+        // === FUNCIONES DE TRABAJOS ===
+        function abrirModalTrabajo(id = null) {
+            trabajoEditando = id;
+            document.getElementById('modalTrabajo').classList.add('show');
+            document.getElementById('fechaInicioTrabajo').value = new Date().toISOString().split('T')[0];
+            
+            // Cargar presupuestos aprobados en el select
+            const select = document.getElementById('presupuestoBase');
+            select.innerHTML = '<option value="">Seleccionar presupuesto...</option>';
+            tallerData.presupuestos.filter(p => p.estado === 'Aprobado').forEach(p => {
+                select.innerHTML += `<option value="${p.id}">${p.id} - ${p.cliente.nombre}</option>`;
+            });
+
+            if (id) {
+                const trabajo = tallerData.trabajos.find(t => t.id === id);
+                if (trabajo) {
+                    cargarDatosTrabajo(trabajo);
+                }
+            }
+        }
+
+        function cargarDatosTrabajo(trabajo) {
+            document.getElementById('trabajoCliente').value = trabajo.cliente;
+            document.getElementById('trabajoVehiculo').value = trabajo.vehiculo;
+            document.getElementById('fechaInicioTrabajo').value = trabajo.fechaInicio;
+            document.getElementById('estadoTrabajo').value = trabajo.estado;
+            document.getElementById('descripcionTrabajo').value = trabajo.descripcion;
+            document.getElementById('costoTrabajo').value = trabajo.costo;
+            document.getElementById('precioTrabajo').value = trabajo.precio;
+            calcularGananciaTrabajo();
+        }
+
+        function calcularGananciaTrabajo() {
+            const costo = parseFloat(document.getElementById('costoTrabajo').value) || 0;
+            const precio = parseFloat(document.getElementById('precioTrabajo').value) || 0;
+            const ganancia = precio - costo;
+            document.getElementById('gananciaTrabajo').textContent = ganancia.toFixed(2);
+        }
+
+        function guardarTrabajo() {
+            const form = document.getElementById('formTrabajo');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const trabajo = {
+                id: trabajoEditando || `TRAB-${Date.now()}`,
+                cliente: document.getElementById('trabajoCliente').value,
+                vehiculo: document.getElementById('trabajoVehiculo').value,
+                fechaInicio: document.getElementById('fechaInicioTrabajo').value,
+                estado: document.getElementById('estadoTrabajo').value,
+                descripcion: document.getElementById('descripcionTrabajo').value,
+                costo: parseFloat(document.getElementById('costoTrabajo').value),
+                precio: parseFloat(document.getElementById('precioTrabajo').value),
+                ganancia: parseFloat(document.getElementById('precioTrabajo').value) - parseFloat(document.getElementById('costoTrabajo').value)
+            };
+
+            if (trabajoEditando) {
+                const index = tallerData.trabajos.findIndex(t => t.id === trabajoEditando);
+                tallerData.trabajos[index] = trabajo;
+            } else {
+                tallerData.trabajos.push(trabajo);
+            }
+
+            saveData();
+            cerrarModal('modalTrabajo');
+            cargarTrabajos();
+            mostrarAlerta('Trabajo guardado exitosamente', 'success');
+        }
+
+        function cargarTrabajos() {
+            const tbody = document.getElementById('tablaTrabajos');
+            tbody.innerHTML = '';
+
+            // Actualizar estadísticas
+            const hoy = new Date().toISOString().split('T')[0];
+            const trabajosEnProceso = tallerData.trabajos.filter(t => t.estado === 'En proceso').length;
+            const trabajosCompletadosHoy = tallerData.trabajos.filter(t => t.fechaInicio === hoy && t.estado === 'Completado').length;
+            const gananciaHoy = tallerData.trabajos.filter(t => t.fechaInicio === hoy).reduce((sum, t) => sum + t.ganancia, 0);
+
+            document.getElementById('trabajosEnProceso').textContent = trabajosEnProceso;
+            document.getElementById('trabajosCompletadosHoy').textContent = trabajosCompletadosHoy;
+            document.getElementById('gananciaDelDia').textContent = `$${gananciaHoy.toFixed(2)}`;
+
+            tallerData.trabajos.forEach(trabajo => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${trabajo.id}</td>
+                    <td>${trabajo.cliente}</td>
+                    <td>${trabajo.vehiculo}</td>
+                    <td>${trabajo.descripcion}</td>
+                    <td>${formatearFecha(trabajo.fechaInicio)}</td>
+                    <td>$${trabajo.costo.toFixed(2)}</td>
+                    <td>$${trabajo.ganancia.toFixed(2)}</td>
+                    <td><span class="status-badge status-${getStatusClass(trabajo.estado)}">${trabajo.estado}</span></td>
+                    <td class="table-actions">
+                        <button class="btn btn-sm btn-warning" onclick="abrirModalTrabajo('${trabajo.id}')">✏️</button>
+                        <button class="btn btn-sm btn-success" onclick="convertirAFactura('${trabajo.id}')">🧾</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarTrabajo('${trabajo.id}')">🗑️</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filtrarTrabajos() {
+            const busqueda = document.getElementById('searchTrabajos').value.toLowerCase();
+            const rows = document.querySelectorAll('#tablaTrabajos tr');
+            
+            rows.forEach(row => {
+                const texto = row.textContent.toLowerCase();
+                row.style.display = texto.includes(busqueda) ? '' : 'none';
+            });
+        }
+
+        function filtrarTrabajosPorEstado(estado) {
+            const rows = document.querySelectorAll('#tablaTrabajos tr');
+            
+            rows.forEach(row => {
+                if (!estado) {
+                    row.style.display = '';
+                } else {
+                    const estadoCell = row.cells[7];
+                    row.style.display = estadoCell.textContent.includes(estado) ? '' : 'none';
+                }
+            });
+        }
+
+        function eliminarTrabajo(id) {
+            if (confirm('¿Está seguro de eliminar este trabajo?')) {
+                tallerData.trabajos = tallerData.trabajos.filter(t => t.id !== id);
+                saveData();
+                cargarTrabajos();
+                mostrarAlerta('Trabajo eliminado', 'success');
+            }
+        }
+
+        function convertirAFactura(trabajoId) {
+            const trabajo = tallerData.trabajos.find(t => t.id === trabajoId);
+            if (trabajo && trabajo.estado === 'Completado') {
+                abrirModalFactura();
+                document.getElementById('facturaCliente').value = trabajo.cliente;
+                document.getElementById('descripcionFactura').value = trabajo.descripcion;
+                document.getElementById('subtotalFactura').value = trabajo.precio;
+                calcularTotalFactura();
+            } else {
+                mostrarAlerta('Solo se pueden facturar trabajos completados', 'warning');
+            }
+        }
+
+        // === FUNCIONES DE GASTOS ===
+        function abrirModalGasto(id = null) {
+            gastoEditando = id;
+            document.getElementById('modalGasto').classList.add('show');
+            document.getElementById('fechaGasto').value = new Date().toISOString().split('T')[0];
+
+            if (id) {
+                const gasto = tallerData.gastos.find(g => g.id === id);
+                if (gasto) {
+                    cargarDatosGasto(gasto);
+                }
+            }
+        }
+
+        function cargarDatosGasto(gasto) {
+            document.getElementById('fechaGasto').value = gasto.fecha;
+            document.getElementById('montoGasto').value = gasto.monto;
+            document.getElementById('tipoGasto').value = gasto.tipo;
+            document.getElementById('categoriaGasto').value = gasto.categoria;
+            document.getElementById('descripcionGasto').value = gasto.descripcion;
+        }
+
+        function guardarGasto() {
+            const form = document.getElementById('formGasto');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const gasto = {
+                id: gastoEditando || `GASTO-${Date.now()}`,
+                fecha: document.getElementById('fechaGasto').value,
+                monto: parseFloat(document.getElementById('montoGasto').value),
+                tipo: document.getElementById('tipoGasto').value,
+                categoria: document.getElementById('categoriaGasto').value,
+                descripcion: document.getElementById('descripcionGasto').value
+            };
+
+            if (gastoEditando) {
+                const index = tallerData.gastos.findIndex(g => g.id === gastoEditando);
+                tallerData.gastos[index] = gasto;
+            } else {
+                tallerData.gastos.push(gasto);
+            }
+
+            saveData();
+            cerrarModal('modalGasto');
+            cargarGastos();
+            mostrarAlerta('Gasto guardado exitosamente', 'success');
+        }
+
+        function cargarGastos() {
+            const tbody = document.getElementById('tablaGastos');
+            tbody.innerHTML = '';
+
+            // Actualizar estadísticas
+            const mesActual = new Date().toISOString().slice(0, 7);
+            const gastosDelMes = tallerData.gastos.filter(g => g.fecha.startsWith(mesActual)).reduce((sum, g) => sum + g.monto, 0);
+            const gastosFijos = tallerData.gastos.filter(g => g.tipo === 'Fijo').reduce((sum, g) => sum + g.monto, 0);
+            const gastosVariables = tallerData.gastos.filter(g => g.tipo === 'Variable').reduce((sum, g) => sum + g.monto, 0);
+
+            document.getElementById('gastosDelMes').textContent = `$${gastosDelMes.toFixed(2)}`;
+            document.getElementById('gastosFijos').textContent = `$${gastosFijos.toFixed(2)}`;
+            document.getElementById('gastosVariables').textContent = `$${gastosVariables.toFixed(2)}`;
+
+            tallerData.gastos.forEach(gasto => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${formatearFecha(gasto.fecha)}</td>
+                    <td>${gasto.descripcion}</td>
+                    <td>${gasto.categoria}</td>
+                    <td><span class="status-badge ${gasto.tipo === 'Fijo' ? 'status-completed' : 'status-pending'}">${gasto.tipo}</span></td>
+                    <td>$${gasto.monto.toFixed(2)}</td>
+                    <td class="table-actions">
+                        <button class="btn btn-sm btn-warning" onclick="abrirModalGasto('${gasto.id}')">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarGasto('${gasto.id}')">🗑️</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filtrarGastos() {
+            const busqueda = document.getElementById('searchGastos').value.toLowerCase();
+            const rows = document.querySelectorAll('#tablaGastos tr');
+            
+            rows.forEach(row => {
+                const texto = row.textContent.toLowerCase();
+                row.style.display = texto.includes(busqueda) ? '' : 'none';
+            });
+        }
+
+        function eliminarGasto(id) {
+            if (confirm('¿Está seguro de eliminar este gasto?')) {
+                tallerData.gastos = tallerData.gastos.filter(g => g.id !== id);
+                saveData();
+                cargarGastos();
+                mostrarAlerta('Gasto eliminado', 'success');
+            }
+        }
+
+        // === FUNCIONES DE FACTURAS ===
+        function abrirModalFactura(id = null) {
+            facturaEditando = id;
+            document.getElementById('modalFactura').classList.add('show');
+            
+            // Generar número de factura
+            if (!id) {
+                document.getElementById('numeroFactura').value = `FAC-${tallerData.configuracion.proximoNumeroFactura.toString().padStart(4, '0')}`;
+            }
+            
+            document.getElementById('fechaFactura').value = new Date().toISOString().split('T')[0];
+            
+            // Establecer fecha de vencimiento (30 días)
+            const vencimiento = new Date();
+            vencimiento.setDate(vencimiento.getDate() + 30);
+            document.getElementById('vencimientoFactura').value = vencimiento.toISOString().split('T')[0];
+
+            // Cargar trabajos completados
+            const select = document.getElementById('trabajoBase');
+            select.innerHTML = '<option value="">Seleccionar trabajo completado...</option>';
+            tallerData.trabajos.filter(t => t.estado === 'Completado').forEach(t => {
+                select.innerHTML += `<option value="${t.id}">${t.id} - ${t.cliente}</option>`;
+            });
+
+            if (id) {
+                const factura = tallerData.facturas.find(f => f.id === id);
+                if (factura) {
+                    cargarDatosFactura(factura);
+                }
+            }
+        }
+
+        function cargarDatosFactura(factura) {
+            document.getElementById('facturaCliente').value = factura.cliente;
+            document.getElementById('numeroFactura').value = factura.numero;
+            document.getElementById('fechaFactura').value = factura.fecha;
+            document.getElementById('vencimientoFactura').value = factura.vencimiento;
+            document.getElementById('descripcionFactura').value = factura.descripcion;
+            document.getElementById('subtotalFactura').value = factura.subtotal;
+            document.getElementById('ivaFactura').value = factura.iva;
+            calcularTotalFactura();
+        }
+
+        function calcularTotalFactura() {
+            const subtotal = parseFloat(document.getElementById('subtotalFactura').value) || 0;
+            const iva = parseFloat(document.getElementById('ivaFactura').value) || 0;
+            const total = subtotal + (subtotal * iva / 100);
+            document.getElementById('totalFactura').textContent = total.toFixed(2);
+        }
+
+        function guardarFactura() {
+            const form = document.getElementById('formFactura');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const subtotal = parseFloat(document.getElementById('subtotalFactura').value);
+            const iva = parseFloat(document.getElementById('ivaFactura').value);
+            const total = subtotal + (subtotal * iva / 100);
+
+            const factura = {
+                id: facturaEditando || `FACT-${Date.now()}`,
+                numero: document.getElementById('numeroFactura').value,
+                cliente: document.getElementById('facturaCliente').value,
+                fecha: document.getElementById('fechaFactura').value,
+                vencimiento: document.getElementById('vencimientoFactura').value,
+                descripcion: document.getElementById('descripcionFactura').value,
+                subtotal: subtotal,
+                iva: iva,
+                total: total,
+                estado: 'Pendiente'
+            };
+
+            if (facturaEditando) {
+                const index = tallerData.facturas.findIndex(f => f.id === facturaEditando);
+                tallerData.facturas[index] = factura;
+            } else {
+                tallerData.facturas.push(factura);
+                tallerData.configuracion.proximoNumeroFactura++;
+            }
+
+            saveData();
+            cerrarModal('modalFactura');
+            cargarFacturas();
+            mostrarAlerta('Factura guardada exitosamente', 'success');
+        }
+
+        function cargarFacturas() {
+            const tbody = document.getElementById('tablaFacturas');
+            tbody.innerHTML = '';
+
+            // Actualizar estadísticas
+            const mesActual = new Date().toISOString().slice(0, 7);
+            const facturasDelMes = tallerData.facturas.filter(f => f.fecha.startsWith(mesActual)).length;
+            const facturasPagadas = tallerData.facturas.filter(f => f.estado === 'Pagada').length;
+            const facturasPendientes = tallerData.facturas.filter(f => f.estado === 'Pendiente').length;
+            const totalFacturado = tallerData.facturas.reduce((sum, f) => sum + f.total, 0);
+
+            document.getElementById('facturasDelMes').textContent = facturasDelMes;
+            document.getElementById('facturasPagadas').textContent = facturasPagadas;
+            document.getElementById('facturasPendientes').textContent = facturasPendientes;
+            document.getElementById('totalFacturado').textContent = `$${totalFacturado.toFixed(2)}`;
+
+            tallerData.facturas.forEach(factura => {
+                const row = tbody.insertRow();
+                const estadoFactura = determinarEstadoFactura(factura);
+                row.innerHTML = `
+                    <td>${factura.numero}</td>
+                    <td>${factura.cliente}</td>
+                    <td>${formatearFecha(factura.fecha)}</td>
+                    <td>${formatearFecha(factura.vencimiento)}</td>
+                    <td>$${factura.total.toFixed(2)}</td>
+                    <td><span class="status-badge status-${getStatusClass(estadoFactura)}">${estadoFactura}</span></td>
+                    <td class="table-actions">
+                        <button class="btn btn-sm btn-outline" onclick="imprimirFactura('${factura.id}')">🖨️</button>
+                        <button class="btn btn-sm btn-success" onclick="marcarComoPagada('${factura.id}')">💰</button>
+                        <button class="btn btn-sm btn-warning" onclick="abrirModalFactura('${factura.id}')">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="eliminarFactura('${factura.id}')">🗑️</button>
+                    </td>
+                `;
+            });
+        }
+
+        function determinarEstadoFactura(factura) {
+            if (factura.estado === 'Pagada') return 'Pagada';
+            const hoy = new Date();
+            const vencimiento = new Date(factura.vencimiento);
+            return vencimiento < hoy ? 'Vencida' : 'Pendiente';
+        }
+
+        function marcarComoPagada(id) {
+            const factura = tallerData.facturas.find(f => f.id === id);
+            if (factura) {
+                factura.estado = 'Pagada';
+                saveData();
+                cargarFacturas();
+                mostrarAlerta('Factura marcada como pagada', 'success');
+            }
+        }
+
+        function eliminarFactura(id) {
+            if (confirm('¿Está seguro de eliminar esta factura?')) {
+                tallerData.facturas = tallerData.facturas.filter(f => f.id !== id);
+                saveData();
+                cargarFacturas();
+                mostrarAlerta('Factura eliminada', 'success');
+            }
+        }
+
+        // === FUNCIONES DE DASHBOARD ===
+        function actualizarDashboard() {
+            const hoy = new Date().toISOString().split('T')[0];
+            const ingresosDia = tallerData.trabajos
+                .filter(t => t.fechaInicio === hoy && t.estado === 'Completado')
+                .reduce((sum, t) => sum + t.precio, 0);
+            
+            const trabajosActivos = tallerData.trabajos.filter(t => t.estado === 'En proceso').length;
+            const presupuestosPendientes = tallerData.presupuestos.filter(p => p.estado === 'Pendiente').length;
+            
+            // Calcular ganancia del mes
+            const mesActual = new Date().toISOString().slice(0, 7);
+            const ingresosMes = tallerData.trabajos
+                .filter(t => t.fechaInicio.startsWith(mesActual))
+                .reduce((sum, t) => sum + t.ganancia, 0);
+
+            // Actualizar las tarjetas del dashboard
+            const cards = document.querySelectorAll('.stat-value');
+            if (cards.length >= 4) {
+                cards[0].textContent = `$${ingresosDia.toFixed(2)}`;
+                cards[1].textContent = trabajosActivos;
+                cards[2].textContent = presupuestosPendientes;
+                cards[3].textContent = `$${ingresosMes.toFixed(2)}`;
+            }
+        }
+
+        // === FUNCIONES DE REPORTES ===
+        function inicializarReportes() {
+            // Establecer fechas por defecto (último mes)
+            const hoy = new Date();
+            const haceUnMes = new Date();
+            haceUnMes.setMonth(hoy.getMonth() - 1);
+            
+            document.getElementById('fechaHasta').value = hoy.toISOString().split('T')[0];
+            document.getElementById('fechaDesde').value = haceUnMes.toISOString().split('T')[0];
+        }
+
+        function generarReporte() {
+            const fechaDesde = document.getElementById('fechaDesde').value;
+            const fechaHasta = document.getElementById('fechaHasta').value;
+            const tipoReporte = document.getElementById('tipoReporte').value;
+
+            if (!fechaDesde || !fechaHasta) {
+                mostrarAlerta('Seleccione el rango de fechas', 'warning');
+                return;
+            }
+
+            const datos = obtenerDatosReporte(fechaDesde, fechaHasta, tipoReporte);
+            mostrarEstadisticasReporte(datos);
+            generarGrafico(datos);
+            mostrarDetalleReporte(datos, tipoReporte);
+        }
+
+        function obtenerDatosReporte(desde, hasta, tipo) {
+            const trabajosFiltrados = tallerData.trabajos.filter(t => 
+                t.fechaInicio >= desde && t.fechaInicio <= hasta
+            );
+            
+            const gastosFiltrados = tallerData.gastos.filter(g => 
+                g.fecha >= desde && g.fecha <= hasta
+            );
+
+            const totalIngresos = trabajosFiltrados.reduce((sum, t) => sum + t.precio, 0);
+            const totalGastos = gastosFiltrados.reduce((sum, g) => sum + g.monto, 0);
+            const totalGanancias = trabajosFiltrados.reduce((sum, t) => sum + t.ganancia, 0);
+
+            return {
+                trabajos: trabajosFiltrados,
+                gastos: gastosFiltrados,
+                totalIngresos,
+                totalGastos,
+                totalGanancias,
+                gananciaReal: totalIngresos - totalGastos
+            };
+        }
+
+        function mostrarEstadisticasReporte(datos) {
+            const container = document.getElementById('reporteStats');
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Total Ingresos</div>
+                            <div class="stat-value">$${datos.totalIngresos.toFixed(2)}</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-green);">💰</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Total Gastos</div>
+                            <div class="stat-value">$${datos.totalGastos.toFixed(2)}</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--accent-red);">💸</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Ganancia Neta</div>
+                            <div class="stat-value">$${datos.gananciaReal.toFixed(2)}</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--primary-color);">📈</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">Trabajos Realizados</div>
+                            <div class="stat-value">${datos.trabajos.length}</div>
+                        </div>
+                        <div class="stat-icon" style="background: var(--secondary-color);">🔧</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generarGrafico(datos) {
+            const container = document.getElementById('chartIngresos');
+            const maxValue = Math.max(datos.totalIngresos, datos.totalGastos);
+            
+            const alturaIngresos = maxValue > 0 ? (datos.totalIngresos / maxValue) * 150 : 0;
+            const alturaGastos = maxValue > 0 ? (datos.totalGastos / maxValue) * 150 : 0;
+            
+            container.innerHTML = `
+                <div class="chart-column" style="height: ${alturaIngresos}px; background: var(--accent-green);">
+                    <div class="chart-value">$${datos.totalIngresos.toFixed(0)}</div>
+                    <div class="chart-label">Ingresos</div>
+                </div>
+                <div class="chart-column" style="height: ${alturaGastos}px; background: var(--accent-red);">
+                    <div class="chart-value">$${datos.totalGastos.toFixed(0)}</div>
+                    <div class="chart-label">Gastos</div>
+                </div>
+            `;
+        }
+
+        function mostrarDetalleReporte(datos, tipo) {
+            const container = document.getElementById('detalleReporte');
+            let html = '';
+
+            switch(tipo) {
+                case 'general':
+                    html = `
+                        <h4>Resumen General</h4>
+                        <p><strong>Período:</strong> ${document.getElementById('fechaDesde').value} al ${document.getElementById('fechaHasta').value}</p>
+                        <p><strong>Total de trabajos:</strong> ${datos.trabajos.length}</p>
+                        <p><strong>Total de gastos registrados:</strong> ${datos.gastos.length}</p>
+                        <p><strong>Margen de ganancia:</strong> ${datos.totalIngresos > 0 ? ((datos.gananciaReal / datos.totalIngresos) * 100).toFixed(1) : 0}%</p>
+                    `;
+                    break;
+                case 'ingresos':
+                    html = '<h4>Detalle de Ingresos</h4>';
+                    datos.trabajos.forEach(trabajo => {
+                        html += `<p>${trabajo.fechaInicio} - ${trabajo.cliente}: $${trabajo.precio.toFixed(2)}</p>`;
+                    });
+                    break;
+                case 'gastos':
+                    html = '<h4>Detalle de Gastos</h4>';
+                    datos.gastos.forEach(gasto => {
+                        html += `<p>${gasto.fecha} - ${gasto.descripcion}: $${gasto.monto.toFixed(2)}</p>`;
+                    });
+                    break;
+                case 'ganancias':
+                    html = `
+                        <h4>Análisis de Ganancias</h4>
+                        <p><strong>Ganancia bruta (sin gastos):</strong> $${datos.totalGanancias.toFixed(2)}</p>
+                        <p><strong>Ganancia neta (con gastos):</strong> $${datos.gananciaReal.toFixed(2)}</p>
+                        <p><strong>Eficiencia:</strong> ${datos.totalIngresos > 0 ? ((datos.totalGanancias / datos.totalIngresos) * 100).toFixed(1) : 0}%</p>
+                    `;
+                    break;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // === FUNCIONES AUXILIARES ===
+        function cerrarModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            
+            // Limpiar formularios
+            const modal = document.getElementById(modalId);
+            const form = modal.querySelector('form');
+            if (form) {
+                form.reset();
+            }
+        }
+
+        function mostrarAlerta(mensaje, tipo) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipo}`;
+            alertDiv.textContent = mensaje;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        function formatearFecha(fecha) {
+            return new Date(fecha).toLocaleDateString('es-ES');
+        }
+
+        function getStatusClass(estado) {
+            switch(estado.toLowerCase()) {
+                case 'pendiente': return 'pending';
+                case 'completado': case 'pagada': return 'completed';
+                case 'entregado': case 'aprobado': return 'delivered';
+                default: return 'pending';
+            }
+        }
+
+        function exportarPresupuestos() {
+            exportarDatos(tallerData.presupuestos, 'presupuestos');
+        }
+
+        function exportarTrabajos() {
+            exportarDatos(tallerData.trabajos, 'trabajos');
+        }
+
+        function exportarGastos() {
+            exportarDatos(tallerData.gastos, 'gastos');
+        }
+
+        function exportarFacturas() {
+            exportarDatos(tallerData.facturas, 'facturas');
+        }
+
+        function exportarDatos(datos, tipo) {
+            const texto = JSON.stringify(datos, null, 2);
+            const blob = new Blob([texto], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${tipo}_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function imprimirFactura(id) {
+            // Implementar vista de impresión de factura
+            window.print();
+        }
+
+        function imprimirReporte() {
+            window.print();
+        }
+
+        // === EVENTOS Y LISTENERS ===
+        document.addEventListener('click', function(event) {
+            const navTabs = document.getElementById('navTabs');
+            const mobileBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!navTabs.contains(event.target) && !mobileBtn.contains(event.target)) {
+                navTabs.classList.remove('show');
+            }
+        });
+
+        // Listeners para cálculos automáticos
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'costoTrabajo' || e.target.id === 'precioTrabajo') {
+                calcularGananciaTrabajo();
+            }
+            if (e.target.id === 'subtotalFactura' || e.target.id === 'ivaFactura') {
+                calcularTotalFactura();
+            }
+        });
+
+        // === INICIALIZACIÓN ===
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeStorage();
+            
+            // Poblar con datos de ejemplo si no hay datos
+            if (tallerData.presupuestos.length === 0) {
+                poblarDatosEjemplo();
+            }
+            
+            actualizarDashboard();
+            console.log('Sistema de Gestión de Taller inicializado correctamente');
+        });
+
+        function poblarDatosEjemplo() {
+            // Datos de ejemplo
+            tallerData.presupuestos = [
+                {
+                    id: 'PRES-001',
+                    fecha: '2025-09-10',
+                    cliente: { nombre: 'Juan Pérez', telefono: '123-456789', vehiculo: 'Toyota Corolla 2018' },
+                    repuestos: [{ item: 'Filtro de aceite', cantidad: 1, precioUnitario: 15.00, costo: 8.00 }],
+                    manoObra: { horas: 2, tarifaHora: 25.00 },
+                    observaciones: 'Cambio de aceite y filtros',
+                    total: 65.00,
+                    estado: 'Aprobado'
+                }
+            ];
+
+            tallerData.trabajos = [
+                {
+                    id: 'TRAB-001',
+                    cliente: 'Juan Pérez',
+                    vehiculo: 'Toyota Corolla 2018',
+                    fechaInicio: '2025-09-12',
+                    estado: 'Completado',
+                    descripcion: 'Cambio de aceite y filtros',
+                    costo: 45.00,
+                    precio: 65.00,
+                    ganancia: 20.00
+                }
+            ];
+
+            tallerData.gastos = [
+                {
+                    id: 'GASTO-001',
+                    fecha: '2025-09-01',
+                    monto: 500.00,
+                    tipo: 'Fijo',
+                    categoria: 'Alquiler',
+                    descripcion: 'Alquiler del local'
+                }
+            ];
+
+            saveData();
+        }
+    </script>
+</body>
+</html>
