@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión - Taller Mecánico</title>
+    <title>Sistema RUTA D</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -41,10 +41,9 @@
             min-height: 100vh;
         }
 
-        /* Sidebar */
         .sidebar {
-    left: 0;
-    top: 0;
+            left: 0;
+            top: 0;
             width: 280px;
             background: var(--card-bg);
             border-right: 1px solid var(--border-color);
@@ -104,7 +103,6 @@
             text-align: center;
         }
 
-        /* Main Content */
         .main-content {
             flex: 1;
             margin-left: 280px;
@@ -157,7 +155,6 @@
             margin: 0 auto;
         }
 
-        /* Cards */
         .card {
             background: var(--card-bg);
             border-radius: 0.75rem;
@@ -183,7 +180,6 @@
             padding: 1.5rem;
         }
 
-        /* Forms */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -225,7 +221,6 @@
             box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
         }
 
-        /* Buttons */
         .btn {
             padding: 0.75rem 1.5rem;
             border: none;
@@ -269,7 +264,6 @@
             color: white;
         }
 
-        /* Tables */
         .table-container {
             overflow-x: auto;
             border-radius: 0.5rem;
@@ -300,7 +294,6 @@
             background: var(--bg-color);
         }
 
-        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -363,7 +356,6 @@
             padding: 1.5rem;
         }
 
-        /* Dashboard Cards */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -575,6 +567,46 @@
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <img src="Logo.png" alt="Logo RUTA D" class="login-logo">
+                    <h1>Sistema RUTA D</h1>
+                    <p>Inicia sesión para acceder al sistema</p>
+                </div>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="loginEmail" class="form-label">Correo electrónico</label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="Ingresa tu correo" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginPassword" class="form-label">Contraseña</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="Ingresa tu contraseña" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Iniciar Sesión
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <small style="color: var(--text-secondary);">
+                            ¿No tienes cuenta? 
+                            <a href="#" id="createAccountLink" style="color: var(--primary-color); text-decoration: none;">
+                                Crear cuenta
+                            </a>
+                        </small>
+                    </div>
+                    
+                    <div id="loginError" class="login-error" style="display: none;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
     <div class="app-container">
         <!-- Sidebar -->
     <div class="sidebar-overlay hidden" id="sidebarOverlay"></div>
@@ -645,7 +677,10 @@
                 </div>
                 
                 <div class="header-right">
-                    <!-- Botón Backup Firebase eliminado -->
+                    <button class="btn btn-danger" id="logoutBtn" title="Cerrar Sesión">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Cerrar Sesión
+                    </button>
                 </div>
             </header>
 
@@ -897,7 +932,6 @@
                     <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
                         <label style="font-weight: 500; color: var(--text-primary);">Consultar mes:</label>
                         <select id="selectorMes" class="form-input" style="width: auto; min-width: 150px;" onchange="updateReportesByMonth()">
-                            <!-- Options will be populated by JavaScript -->
                         </select>
                         <button type="button" class="btn btn-secondary" onclick="resetToCurrentMonth()">
                             <i class="fas fa-calendar-day"></i> Mes Actual
@@ -997,8 +1031,6 @@
                         </div>
                     </div>
                 </section>
-
-                <!-- Other sections will be added similarly -->
             </div>
         </main>
     </div>
@@ -1022,7 +1054,6 @@
                             <label class="form-label">Cliente *</label>
                             <input type="text" class="form-input" id="trabajoCliente" list="trabajoClientesList" required oninput="handleTrabajoClienteInput()" onchange="handleTrabajoClienteChange()">
                             <datalist id="trabajoClientesList">
-                                <!-- Options will be populated by JavaScript -->
                             </datalist>
                         </div>
                         <div class="form-group">
@@ -1122,7 +1153,6 @@
             </div>
             <div class="modal-body">
                 <div id="trabajoViewContent">
-                    <!-- Content will be populated by JavaScript -->
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-secondary" onclick="hideTrabajoViewModal()">
@@ -1144,7 +1174,6 @@
             </div>
             <div class="modal-body">
                 <div id="facturaViewContent">
-                    <!-- Content will be populated by JavaScript -->
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-secondary" onclick="hideFacturaViewModal()">
@@ -1296,7 +1325,6 @@
                             <label class="form-label">Cliente *</label>
                             <input type="text" class="form-input" id="clienteNombre" list="clientesList" required oninput="handleClienteInput()" onchange="handleClienteChange()">
                             <datalist id="clientesList">
-                                <!-- Options will be populated by JavaScript -->
                             </datalist>
                         </div>
                         
@@ -1386,7 +1414,6 @@
             </div>
             <div class="modal-body">
                 <div id="presupuestoViewContent">
-                    <!-- Content will be populated by JavaScript -->
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
                     <button type="button" class="btn btn-secondary" onclick="hidePresupuestoViewModal()">
@@ -1432,6 +1459,9 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <script>
         // Global variables
         let currentSection = 'dashboard';
@@ -1455,8 +1485,8 @@
                     'Salarios',
                     'Servicios',
                     'Impuestos',
-                    'Mantenimiento',
-                    'Repuestos',
+                    'Mercaderías',
+                    'Compras',
                     'Otros'
                 ]
             }
@@ -1464,28 +1494,18 @@
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', async function() {
+            // Setup event listeners first (for login form)
+            setupEventListeners();
+            
             try {
-                // Initialize Firebase
+                // Initialize Firebase (includes auth setup)
                 await initializeFirebase();
-                
-                // Load data from Firebase
-                await loadFirebaseData();
-                
-                // Setup UI
-                setupEventListeners();
-                showSection('dashboard');
-                // loadDashboard();
                 
             } catch (error) {
                 console.error('Error initializing app:', error);
-                
-                // Fallback to localStorage if Firebase fails
-                loadLocalData();
-                setupEventListeners();
-                showSection('dashboard');
-                // loadDashboard();
-                
-                showToast('Iniciado en modo offline (localStorage)', 'warning');
+                showToast('Error al inicializar la aplicación', 'error');
+                // Still show login screen even if Firebase fails
+                showLoginScreen();
             }
         });
 
@@ -1494,6 +1514,7 @@
                 // Import Firebase modules
                 const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js");
                 const { getDatabase, ref, set, get, child, onValue, push, update, remove } = await import("https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js");
+                const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js");
                 
                 // Firebase configuration
                 const firebaseConfig = {
@@ -1510,6 +1531,9 @@
                 app = initializeApp(firebaseConfig);
                 database = getDatabase(app);
                 
+                // Initialize Firebase Auth
+                const auth = getAuth(app);
+                
                 // Store Firebase functions globally for later use
                 window.firebaseRef = ref;
                 window.firebaseSet = set;
@@ -1520,19 +1544,34 @@
                 window.firebaseUpdate = update;
                 window.firebaseRemove = remove;
                 
-                // Load data from Firebase
-                await loadFirebaseData();
+                // Store Auth functions globally
+                window.firebaseAuth = auth;
+                window.firebaseSignIn = signInWithEmailAndPassword;
+                window.firebaseSignOut = signOut;
+                window.firebaseOnAuthStateChanged = onAuthStateChanged;
+                window.firebaseCreateUser = createUserWithEmailAndPassword;
                 
-                // Initialize app after Firebase is ready
-                initializeApp_Internal();
+                // Set up authentication state listener
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        console.log('User is signed in:', user.email);
+                        showMainApp();
+                        // Load data only after authentication
+                        loadFirebaseData().then(() => {
+                            initializeApp_Internal();
+                        });
+                    } else {
+                        console.log('User is signed out');
+                        showLoginScreen();
+                    }
+                });
                 
-                showToast('Conectado a Firebase exitosamente', 'success');
+                showToast('Firebase inicializado correctamente', 'success');
             } catch (error) {
                 console.error('Error initializing Firebase:', error);
                 showToast('Error al conectar con Firebase', 'error');
-                // Fallback to local storage if Firebase fails
-                loadLocalData();
-                initializeApp_Internal();
+                // Show login screen even if Firebase fails, but with fallback
+                showLoginScreen();
             }
         }
 
@@ -1545,7 +1584,129 @@
             showSection('dashboard');
         }
 
+        // Authentication Functions
+        function showLoginScreen() {
+            document.body.classList.remove('authenticated');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.querySelector('.app-container').style.display = 'none';
+        }
+
+        function showMainApp() {
+            document.body.classList.add('authenticated');
+            document.getElementById('loginScreen').style.display = 'none';
+            document.querySelector('.app-container').style.display = 'flex';
+            
+            // Setup additional event listeners for main app (but not login-related ones again)
+            setupMainAppEventListeners();
+            showSection('dashboard');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+            
+            // Clear previous errors
+            loginError.style.display = 'none';
+            
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
+            
+            try {
+                const auth = window.firebaseAuth;
+                await window.firebaseSignIn(auth, email, password);
+                // Success - onAuthStateChanged will handle the rest
+            } catch (error) {
+                console.error('Login error:', error);
+                
+                // Show error message
+                let errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.';
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No existe una cuenta con este correo electrónico.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Contraseña incorrecta.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Correo electrónico inválido.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Demasiados intentos fallidos. Intenta más tarde.';
+                }
+                
+                loginError.textContent = errorMessage;
+                loginError.style.display = 'block';
+            } finally {
+                // Reset button state
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                const auth = window.firebaseAuth;
+                await window.firebaseSignOut(auth);
+                showToast('Sesión cerrada exitosamente', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showToast('Error al cerrar sesión', 'error');
+            }
+        }
+
+        async function createAccount() {
+            const email = prompt('Ingresa el correo electrónico para la nueva cuenta:');
+            if (!email) return;
+            
+            const password = prompt('Ingresa la contraseña (mínimo 6 caracteres):');
+            if (!password || password.length < 6) {
+                alert('La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            
+            try {
+                const auth = window.firebaseAuth;
+                await window.firebaseCreateUser(auth, email, password);
+                showToast('Cuenta creada exitosamente', 'success');
+            } catch (error) {
+                console.error('Account creation error:', error);
+                let errorMessage = 'Error al crear la cuenta.';
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'Ya existe una cuenta con este correo electrónico.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Correo electrónico inválido.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'La contraseña es muy débil.';
+                }
+                alert(errorMessage);
+            }
+        }
+
         function setupEventListeners() {
+            // Login form
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+            
+            // Create account link
+            const createAccountLink = document.getElementById('createAccountLink');
+            if (createAccountLink) {
+                createAccountLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    createAccount();
+                });
+            }
+            
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+        }
+
+        function setupMainAppEventListeners() {
             // Cierre de modales con Escape y clic fuera
             const modalIds = [
                 'trabajoModal', 'trabajoViewModal', 'facturaViewModal', 'gastoModal', 'facturaModal',
@@ -2528,6 +2689,166 @@
                 align-items: center;
                 justify-content: center;
                 z-index: 9999;
+            }
+
+            /* Login Screen Styles */
+            .login-screen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            }
+
+            .login-container {
+                width: 100%;
+                max-width: 400px;
+                padding: 2rem;
+            }
+
+            .login-card {
+                background: var(--card-bg);
+                border-radius: 1rem;
+                box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+                overflow: hidden;
+            }
+
+            .login-header {
+                text-align: center;
+                padding: 3rem 2rem 2rem;
+                background: var(--card-bg);
+            }
+
+            .login-logo {
+                width: 80px;
+                height: 80px;
+                object-fit: contain;
+                margin-bottom: 1rem;
+                border-radius: 50%;
+                box-shadow: var(--shadow);
+            }
+
+            .login-header h1 {
+                font-size: 1.875rem;
+                font-weight: 700;
+                color: var(--text-primary);
+                margin-bottom: 0.5rem;
+            }
+
+            .login-header p {
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+            }
+
+            .login-form {
+                padding: 0 2rem 3rem;
+            }
+
+            .login-form .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .login-form .form-label {
+                display: block;
+                font-weight: 500;
+                color: var(--text-primary);
+                margin-bottom: 0.5rem;
+                font-size: 0.875rem;
+            }
+
+            .login-form .form-input {
+                width: 100%;
+                padding: 0.875rem 1rem;
+                border: 2px solid var(--border-color);
+                border-radius: 0.5rem;
+                font-size: 1rem;
+                transition: all 0.2s ease;
+                background: var(--card-bg);
+            }
+
+            .login-form .form-input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+            .btn-full {
+                width: 100%;
+                padding: 0.875rem 1rem;
+                font-size: 1rem;
+                font-weight: 600;
+            }
+
+            .login-error {
+                margin-top: 1rem;
+                padding: 0.75rem;
+                background: #fef2f2;
+                border: 1px solid #fecaca;
+                border-radius: 0.5rem;
+                color: var(--error-color);
+                font-size: 0.875rem;
+                text-align: center;
+            }
+
+            /* Hidden by default */
+            .app-container {
+                display: none;
+            }
+
+            /* Show main app when authenticated */
+            .authenticated .app-container {
+                display: flex;
+            }
+
+            .authenticated .login-screen {
+                display: none;
+            }
+
+            /* Toast Container */
+            .toast-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10001;
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .toast {
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 0.5rem;
+                padding: 1rem 1.5rem;
+                box-shadow: var(--shadow-lg);
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                min-width: 300px;
+            }
+
+            .toast.show {
+                transform: translateX(0);
+            }
+
+            .toast.success {
+                border-left: 4px solid var(--success-color);
+            }
+
+            .toast.error {
+                border-left: 4px solid var(--error-color);
+            }
+
+            .toast.warning {
+                border-left: 4px solid var(--warning-color);
+            }
+
+            .toast.info {
+                border-left: 4px solid var(--primary-color);
             }
         `;
         
