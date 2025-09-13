@@ -593,15 +593,6 @@
                         Iniciar Sesión
                     </button>
                     
-                    <div style="text-align: center; margin-top: 1rem;">
-                        <small style="color: var(--text-secondary);">
-                            ¿No tienes cuenta? 
-                            <a href="#" id="createAccountLink" style="color: var(--primary-color); text-decoration: none;">
-                                Crear cuenta
-                            </a>
-                        </small>
-                    </div>
-                    
                     <div id="loginError" class="login-error" style="display: none;"></div>
                 </form>
             </div>
@@ -1514,7 +1505,7 @@
                 // Import Firebase modules
                 const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js");
                 const { getDatabase, ref, set, get, child, onValue, push, update, remove } = await import("https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js");
-                const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js");
+                const { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js");
                 
                 // Firebase configuration
                 const firebaseConfig = {
@@ -1549,7 +1540,6 @@
                 window.firebaseSignIn = signInWithEmailAndPassword;
                 window.firebaseSignOut = signOut;
                 window.firebaseOnAuthStateChanged = onAuthStateChanged;
-                window.firebaseCreateUser = createUserWithEmailAndPassword;
                 
                 // Set up authentication state listener
                 onAuthStateChanged(auth, (user) => {
@@ -1655,48 +1645,11 @@
             }
         }
 
-        async function createAccount() {
-            const email = prompt('Ingresa el correo electrónico para la nueva cuenta:');
-            if (!email) return;
-            
-            const password = prompt('Ingresa la contraseña (mínimo 6 caracteres):');
-            if (!password || password.length < 6) {
-                alert('La contraseña debe tener al menos 6 caracteres');
-                return;
-            }
-            
-            try {
-                const auth = window.firebaseAuth;
-                await window.firebaseCreateUser(auth, email, password);
-                showToast('Cuenta creada exitosamente', 'success');
-            } catch (error) {
-                console.error('Account creation error:', error);
-                let errorMessage = 'Error al crear la cuenta.';
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'Ya existe una cuenta con este correo electrónico.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Correo electrónico inválido.';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'La contraseña es muy débil.';
-                }
-                alert(errorMessage);
-            }
-        }
-
         function setupEventListeners() {
             // Login form
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', handleLogin);
-            }
-            
-            // Create account link
-            const createAccountLink = document.getElementById('createAccountLink');
-            if (createAccountLink) {
-                createAccountLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    createAccount();
-                });
             }
             
             // Logout button
