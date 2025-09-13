@@ -43,6 +43,8 @@
 
         /* Sidebar */
         .sidebar {
+    left: 0;
+    top: 0;
             width: 280px;
             background: var(--card-bg);
             border-right: 1px solid var(--border-color);
@@ -410,15 +412,32 @@
         @media (max-width: 1024px) {
             .sidebar {
                 transform: translateX(-100%);
+                box-shadow: none;
             }
-            
+            .sidebar.show {
+                transform: translateX(0);
+                box-shadow: 0 0 0 100vw rgba(0,0,0,0.3);
+            }
             .main-content {
                 margin-left: 0;
             }
-            
             .content-area {
                 padding: 1rem;
             }
+            .sidebar-overlay {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0,0,0,0.3);
+                z-index: 999;
+            }
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+    /* Fin del bloque @media */
         }
 
         /* Hidden class */
@@ -558,12 +577,16 @@
 <body>
     <div class="app-container">
         <!-- Sidebar -->
+    <div class="sidebar-overlay hidden" id="sidebarOverlay"></div>
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
                     <i class="fas fa-wrench"></i>
-                    <span>AutoTaller Pro</span>
+                    <span>Taller RUTA D</span>
                 </div>
+            </div>
+            <div style="position: absolute; bottom: 2rem; left: 0; width: 100%; display: flex; justify-content: center; align-items: center;">
+                <img src="Logo.png" alt="Logo" style="max-width: 250px; max-height: 250px; display: block; margin: 0 auto;">
             </div>
             
             <nav class="nav-menu">
@@ -599,7 +622,7 @@
                 
                 <button class="nav-item" data-section="reportes">
                     <i class="fas fa-chart-bar"></i>
-                    <span>Reportes</span>
+                    <span>Reportes <i class="fas fa-lock" style="font-size: 0.7em; opacity: 0.7;"></i></span>
                 </button>
                 
                 <button class="nav-item" data-section="configuracion">
@@ -622,10 +645,7 @@
                 </div>
                 
                 <div class="header-right">
-                    <button class="btn btn-primary" id="syncBtn">
-                        <i class="fas fa-cloud-download-alt"></i>
-                        Backup Firebase
-                    </button>
+                    <!-- Botón Backup Firebase eliminado -->
                 </div>
             </header>
 
@@ -633,14 +653,6 @@
                 <!-- Dashboard Section -->
                 <section id="dashboard-section" class="content-section">
                     <div class="dashboard-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon primary">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                            <div class="stat-value" id="ingresosMes">$0</div>
-                            <div class="stat-label">Ingresos del Mes</div>
-                        </div>
-                        
                         <div class="stat-card">
                             <div class="stat-icon success">
                                 <i class="fas fa-tools"></i>
@@ -656,22 +668,23 @@
                             <div class="stat-value" id="presupuestosPendientes">0</div>
                             <div class="stat-label">Presupuestos Pendientes</div>
                         </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon danger">
-                                <i class="fas fa-percentage"></i>
-                            </div>
-                            <div class="stat-value" id="margenPromedio">0%</div>
-                            <div class="stat-label">Margen Promedio</div>
-                        </div>
+                           <div class="stat-card">
+                               <div class="stat-icon info">
+                                   <i class="fas fa-money-bill-wave"></i>
+                               </div>
+                               <div class="stat-value" id="facturasPendientes">0</div>
+                               <div class="stat-label">Facturas Pendientes de Pago</div>
+                           </div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">Trabajos Recientes</h2>
-                            <button class="btn btn-primary" onclick="showSection('trabajos')">
-                                Ver Todos
-                            </button>
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <h2 class="card-title">Trabajos Recientes</h2>
+                                <button class="btn btn-primary" onclick="showSection('trabajos')">
+                                    Ver Todos
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="table-container">
@@ -832,6 +845,7 @@
                                             <th>Cliente</th>
                                             <th>Total</th>
                                             <th>Estado Pago</th>
+                                            <th>Medio de Pago</th>
                                             <th>Fecha</th>
                                             <th>Acciones</th>
                                         </tr>
@@ -879,25 +893,27 @@
 
                 <!-- Reportes Section -->
                 <section id="reportes-section" class="content-section hidden">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <!-- Selector de mes -->
+                    <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                        <label style="font-weight: 500; color: var(--text-primary);">Consultar mes:</label>
+                        <select id="selectorMes" class="form-input" style="width: auto; min-width: 150px;" onchange="updateReportesByMonth()">
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                        <button type="button" class="btn btn-secondary" onclick="resetToCurrentMonth()">
+                            <i class="fas fa-calendar-day"></i> Mes Actual
+                        </button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Resumen Financiero</h3>
+                                <h3 class="card-title">Resumen Mensual</h3>
                             </div>
                             <div class="card-body">
                                 <div id="resumenFinanciero"></div>
                             </div>
                         </div>
-                        
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Top Clientes</h3>
-                            </div>
-                            <div class="card-body">
-                                <div id="topClientes"></div>
-                            </div>
-                        </div>
-                        
+
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Gastos por Categoría</h3>
@@ -910,9 +926,20 @@
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Evolución Mensual</h3>
+                                <div id="evolucionMensualTrend" style="font-size: 1.2em; margin-left: 0.5em;"></div>
                             </div>
                             <div class="card-body">
                                 <div id="evolucionChart"></div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Evolución Semanal</h3>
+                                <div id="evolucionSemanalTrend" style="font-size: 1.2em; margin-left: 0.5em;"></div>
+                            </div>
+                            <div class="card-body">
+                                <div id="evolucionSemanalChart"></div>
                             </div>
                         </div>
                     </div>
@@ -926,7 +953,7 @@
                         </div>
                         <div class="card-body">
                             <form id="configuracionForm">
-                                <div class="form-grid">
+                                <div class="form-grid-2">
                                     <div class="form-group">
                                         <label class="form-label">Nombre del Taller *</label>
                                         <input type="text" class="form-input" id="confNombreTaller" required>
@@ -943,10 +970,6 @@
                                         <label class="form-label">Email</label>
                                         <input type="email" class="form-input" id="confEmail">
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label">IVA por Defecto (%)</label>
-                                        <input type="number" class="form-input" id="confIva" min="0" max="100">
-                                    </div>
                                 </div>
                                 
                                 <div style="margin: 2rem 0;">
@@ -959,10 +982,6 @@
                                         <button type="button" class="btn btn-primary" onclick="createBackup()">
                                             <i class="fas fa-download"></i>
                                             Crear Backup
-                                        </button>
-                                        <button type="button" class="btn btn-danger" onclick="clearAllData()">
-                                            <i class="fas fa-trash"></i>
-                                            Limpiar Datos
                                         </button>
                                     </div>
                                     <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importBackup(this.files[0])">
@@ -1378,6 +1397,41 @@
         </div>
     </div>
 
+    <!-- Password Modal for Reportes -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal" style="width: 90%; max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">🔐 Acceso Restringido</h3>
+                <button class="modal-close" onclick="hidePasswordModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 1.5rem; color: #6c757d;">
+                    <i class="fas fa-shield-alt" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                    <p style="margin: 0; font-size: 0.9rem;">La sección de <strong>Reportes</strong> contiene información sensible del taller.</p>
+                </div>
+                <form id="passwordForm" onsubmit="checkPassword(event)">
+                    <div class="form-group">
+                        <label class="form-label">Ingrese la contraseña de acceso:</label>
+                        <input type="password" class="form-input" id="passwordInput" placeholder="••••••••" required autocomplete="off">
+                        <div id="passwordError" style="color: #e74c3c; font-size: 0.875rem; margin-top: 0.5rem; display: none;">
+                            ❌ Contraseña incorrecta. Intente nuevamente.
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="hidePasswordModal()">
+                            ❌ Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            🔓 Acceder
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Global variables
         let currentSection = 'dashboard';
@@ -1390,12 +1444,12 @@
             facturas: [],
             clientes: [],
             configuracion: {
-                nombreTaller: 'AutoTaller Pro',
+                nombreTaller: 'Taller RUTA D',
                 direccion: '',
                 telefono: '',
                 email: '',
                 logo: '',
-                iva: 19,
+                // iva removed
                 categorias: [
                     'Alquiler',
                     'Salarios',
@@ -1422,12 +1476,10 @@
                 showSection('dashboard');
                 // loadDashboard();
                 
-                console.log('App initialized successfully with Firebase');
             } catch (error) {
                 console.error('Error initializing app:', error);
                 
                 // Fallback to localStorage if Firebase fails
-                console.log('Falling back to localStorage');
                 loadLocalData();
                 setupEventListeners();
                 showSection('dashboard');
@@ -1485,10 +1537,6 @@
         }
 
         function initializeApp_Internal() {
-            // Check if first time setup
-            if (!appData.configuracion.nombreTaller || appData.configuracion.nombreTaller === 'AutoTaller Pro') {
-                showConfigurationWizard();
-            }
             
             // Update dashboard
             updateDashboard();
@@ -1498,39 +1546,115 @@
         }
 
         function setupEventListeners() {
+            // Cierre de modales con Escape y clic fuera
+            const modalIds = [
+                'trabajoModal', 'trabajoViewModal', 'facturaViewModal', 'gastoModal', 'facturaModal',
+                'presupuestoSelectModal', 'presupuestoModal', 'presupuestoViewModal', 'passwordModal'
+            ];
+            modalIds.forEach(id => {
+                const overlay = document.getElementById(id);
+                if (overlay) {
+                    overlay.addEventListener('mousedown', function(e) {
+                        if (e.target === overlay) {
+                            overlay.classList.remove('show');
+                        }
+                    });
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    modalIds.forEach(id => {
+                        const overlay = document.getElementById(id);
+                        if (overlay && overlay.classList.contains('show')) {
+                            overlay.classList.remove('show');
+                        }
+                    });
+                }
+            });
             // Menu toggle
-            document.getElementById('menuToggle').addEventListener('click', toggleSidebar);
+            const menuToggle = document.getElementById('menuToggle');
+            if (menuToggle) {
+                menuToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            // Cerrar menú tocando fuera en móvil
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.remove('show');
+                        this.classList.add('hidden');
+                    }
+                });
+            }
             
             // Navigation
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.addEventListener('click', function() {
                     const section = this.dataset.section;
+                    
+                    // Special handling for reportes section - require password
+                    if (section === 'reportes') {
+                        showPasswordModal();
+                        return;
+                    }
+                    
                     showSection(section);
                 });
             });
 
             // Sync button
-            document.getElementById('syncBtn').addEventListener('click', createFirebaseBackup);
+            const syncBtn = document.getElementById('syncBtn');
+            if (syncBtn) {
+                syncBtn.addEventListener('click', createFirebaseBackup);
+            }
 
             // Presupuesto form
-            document.getElementById('presupuestoForm').addEventListener('submit', handlePresupuestoSubmit);
+            const presupuestoForm = document.getElementById('presupuestoForm');
+            if (presupuestoForm) {
+                presupuestoForm.addEventListener('submit', handlePresupuestoSubmit);
+            }
             
             // Trabajo form
-            document.getElementById('trabajoForm').addEventListener('submit', handleTrabajoSubmit);
+            const trabajoForm = document.getElementById('trabajoForm');
+            if (trabajoForm) {
+                trabajoForm.addEventListener('submit', handleTrabajoSubmit);
+            }
             
             // Gasto form
-            document.getElementById('gastoForm').addEventListener('submit', handleGastoSubmit);
+            const gastoForm = document.getElementById('gastoForm');
+            if (gastoForm) {
+                gastoForm.addEventListener('submit', handleGastoSubmit);
+            }
             
             // Factura form
-            document.getElementById('facturaForm').addEventListener('submit', handleFacturaSubmit);
+            const facturaForm = document.getElementById('facturaForm');
+            if (facturaForm) {
+                facturaForm.addEventListener('submit', handleFacturaSubmit);
+            }
             
             // Configuración form
-            document.getElementById('configuracionForm').addEventListener('submit', handleConfiguracionSubmit);
+            const configuracionForm = document.getElementById('configuracionForm');
+            if (configuracionForm) {
+                configuracionForm.addEventListener('submit', handleConfiguracionSubmit);
+            }
             
             // Set default dates
-            document.getElementById('trabajoFechaIngreso').value = new Date().toISOString().split('T')[0];
-            document.getElementById('gastoFecha').value = new Date().toISOString().split('T')[0];
-            document.getElementById('facturaFecha').value = new Date().toISOString().split('T')[0];
+            const trabajoFechaIngreso = document.getElementById('trabajoFechaIngreso');
+            if (trabajoFechaIngreso) {
+                trabajoFechaIngreso.value = new Date().toISOString().split('T')[0];
+            }
+            
+            const gastoFecha = document.getElementById('gastoFecha');
+            if (gastoFecha) {
+                gastoFecha.value = new Date().toISOString().split('T')[0];
+            }
+            
+            const facturaFecha = document.getElementById('facturaFecha');
+            if (facturaFecha) {
+                facturaFecha.value = new Date().toISOString().split('T')[0];
+            }
             
             // Add auto-complete functionality
             setupAutoComplete();
@@ -1681,6 +1805,49 @@
 
         function hidePresupuestoViewModal() {
             document.getElementById('presupuestoViewModal').classList.remove('show');
+        }
+
+        // Password Modal Functions
+        function showPasswordModal() {
+            document.getElementById('passwordModal').classList.add('show');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('passwordInput').focus();
+            }, 100);
+        }
+
+        function hidePasswordModal() {
+            const wasVisible = document.getElementById('passwordModal').classList.contains('show');
+            document.getElementById('passwordModal').classList.remove('show');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+            
+            // Show discrete message when user cancels
+            if (wasVisible) {
+                showToast('🔒 Acceso a Reportes cancelado', 'info');
+            }
+        }
+
+        function checkPassword(event) {
+            event.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            const correctPassword = '1213122';
+            
+            if (password === correctPassword) {
+                hidePasswordModal();
+                // Proceed to show reportes section
+                showSection('reportes');
+                showToast('🔓 Acceso concedido a Reportes', 'success');
+            } else {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+                // More discrete error message
+                setTimeout(() => {
+                    document.getElementById('passwordError').style.display = 'none';
+                }, 3000);
+            }
         }
 
         function editPresupuesto(presupuestoId) {
@@ -2126,7 +2293,7 @@
                         }
                         
                         .info-label {
-                            font-size: 0.9em;
+                            font-size: 1em;
                             color: #666;
                             margin-bottom: 5px;
                         }
@@ -2201,14 +2368,14 @@
                             margin-top: 40px;
                             padding-top: 20px;
                             border-top: 1px solid #eee;
-                            font-size: 0.8em;
+                            font-size: 0.9em;
                             color: #999;
                         }
                         
                         @media print {
                             body { 
                                 padding: 20px 0; 
-                                font-size: 12px;
+                                font-size: 14px;
                             }
                         }
                     </style>
@@ -2216,7 +2383,7 @@
                 <body>
                     <div class="invoice-container">
                         <div class="header">
-                            <h1>${appData.configuracion.nombreTaller || 'AutoTaller Pro'}</h1>
+                            <h1>${appData.configuracion.nombreTaller || 'Taller RUTA D'}</h1>
                             <div class="subtitle">
                                 ${appData.configuracion.direccion || 'Dirección del Taller'}<br>
                                 Tel: ${appData.configuracion.telefono || '(000) 000-0000'} | Email: ${appData.configuracion.email || 'email@taller.com'}
@@ -2225,7 +2392,6 @@
                         
                         <div class="invoice-info">
                             <div class="client-info">
-                                <h3>FACTURAR A:</h3>
                                 <div class="info-row"><strong>Cliente:</strong> ${factura.cliente}</div>
                                 <div class="info-row"><strong>Fecha:</strong> ${formatDate(factura.fecha)}</div>
                                 <div class="info-row">
@@ -2234,10 +2400,6 @@
                                         ${factura.estadoPago || 'Pendiente'}
                                     </span>
                                 </div>
-                            </div>
-                            <div class="invoice-number">
-                                <h2>FACTURA</h2>
-                                <div style="font-size: 1.8em; color: #e74c3c; font-weight: bold;">#${factura.numero}</div>
                             </div>
                         </div>
                         
@@ -2249,7 +2411,7 @@
                                         <tr>
                                             <th style="width: 50%">Descripción</th>
                                             <th style="width: 15%">Cant.</th>
-                                            <th style="width: 17.5%">Precio Unit.</th>
+                                            <th style="width: 17.5%">Valor</th>
                                             <th style="width: 17.5%">Subtotal</th>
                                         </tr>
                                     </thead>
@@ -2296,7 +2458,7 @@
                         </div>
                         
                         <div class="footer">
-                            Gracias por confiar en nosotros | ${appData.configuracion.nombreTaller || 'AutoTaller Pro'}
+                            Gracias por confiar en nosotros | ${appData.configuracion.nombreTaller || 'Taller RUTA D'}
                         </div>
                     </div>
                 </body>
@@ -2375,10 +2537,17 @@
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
             const mainContent = document.getElementById('mainContent');
-            
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+            const isMobile = window.innerWidth <= 1024;
+            if (isMobile) {
+                const show = !sidebar.classList.contains('show');
+                sidebar.classList.toggle('show', show);
+                sidebarOverlay.classList.toggle('hidden', !show);
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
         }
 
         function showSection(sectionName) {
@@ -2466,10 +2635,8 @@
                     appData.clientes = data.clientes ? Object.values(data.clientes) : [];
                     appData.configuracion = data.configuracion || appData.configuracion;
                     
-                    console.log('Datos cargados desde Firebase:', appData);
                     showToast('Datos sincronizados desde Firebase', 'success');
                 } else {
-                    console.log('No hay datos en Firebase, usando valores por defecto');
                     // Save default configuration to Firebase
                     await saveToFirebase('configuracion', appData.configuracion);
                 }
@@ -2625,22 +2792,22 @@
             }
         }
 
-        function clearAllData() {
-            if (confirm('¿Está seguro de que desea eliminar todos los datos? Esta acción no se puede deshacer.')) {
-                try {
-                    // Clear Firebase data
-                    window.firebaseSet(window.firebaseRef(database, 'taller'), null);
-                    
-                    // Clear local data
-                    localStorage.removeItem('tallerProData');
-                    
-                    location.reload();
-                } catch (error) {
-                    console.error('Error clearing data:', error);
-                    showToast('Error al limpiar datos', 'error');
-                }
-            }
-        }
+        // function clearAllData() {
+        //     if (confirm('¿Está seguro de que desea eliminar todos los datos? Esta acción no se puede deshacer.')) {
+        //         try {
+        //             // Clear Firebase data
+        //             window.firebaseSet(window.firebaseRef(database, 'taller'), null);
+        //             
+        //             // Clear local data
+        //             localStorage.removeItem('tallerProData');
+        //             
+        //             location.reload();
+        //         } catch (error) {
+        //             console.error('Error clearing data:', error);
+        //             showToast('Error al limpiar datos', 'error');
+        //         }
+        //     }
+        // }
 
         // Trabajos functionality
         function showTrabajoModal() {
@@ -2841,15 +3008,15 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Cantidad</label>
-                    <input type="number" class="form-input trabajo-repuesto-cant" min="1" value="1" onchange="updateTrabajoCostos()">
+                    <input type="number" class="form-input trabajo-repuesto-cant" min="0.01" step="0.01" value="1" onchange="updateTrabajoCostos()">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Costo Unitario</label>
-                    <input type="number" class="form-input trabajo-repuesto-costo" min="0" step="0.01" onchange="updateTrabajoCostos()">
+                    <input type="number" class="form-input trabajo-repuesto-costo" min="0" step="1" onchange="updateTrabajoCostos()">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Precio Venta</label>
-                    <input type="number" class="form-input trabajo-repuesto-precio" min="0" step="0.01" onchange="updateTrabajoCostos()">
+                    <input type="number" class="form-input trabajo-repuesto-precio" min="0" step="1" onchange="updateTrabajoCostos()">
                 </div>
                 <div class="form-group" style="display: flex; align-items: end; grid-column: span 2;">
                     <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove(); updateTrabajoCostos();">
@@ -2878,7 +3045,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Valor</label>
-                    <input type="number" class="form-input trabajo-trabajo-valor" min="0" step="0.01" onchange="updateTrabajoCostos()">
+                    <input type="number" class="form-input trabajo-trabajo-valor" min="0" step="1" onchange="updateTrabajoCostos()">
                 </div>
                 <div class="form-group" style="display: flex; align-items: end; grid-column: span 2;">
                     <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove(); updateTrabajoCostos();">
@@ -3080,31 +3247,34 @@
             appData.trabajos.forEach(trabajo => {
                 const margenPorcentaje = trabajo.total > 0 ? ((trabajo.margen / trabajo.total) * 100).toFixed(1) : 0;
                 const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${trabajo.numero}</td>
-                    <td>${trabajo.cliente}</td>
-                    <td>${trabajo.vehiculo}</td>
-                    <td><span class="badge badge-${getStatusClass(trabajo.estado)}">${trabajo.estado}</span></td>
-                    <td>${formatCurrency(trabajo.total)}</td>
-                    <td>${formatCurrency(trabajo.margen)} (${margenPorcentaje}%)</td>
-                    <td>${formatDate(trabajo.fechaIngreso)}</td>
-                    <td class="text-right">
-                        <div class="btn-group-right">
-                            <button class="btn btn-sm btn-primary" onclick="viewTrabajo('${trabajo.id}')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-warning" onclick="editTrabajo('${trabajo.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-success" onclick="crearFacturaFromTrabajo('${trabajo.id}')" ${trabajo.estado !== 'Completado' ? 'disabled' : ''}>
-                                <i class="fas fa-file-invoice"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteTrabajo('${trabajo.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
+                    row.innerHTML = `
+                        <td>${trabajo.numero}</td>
+                        <td>${trabajo.cliente}</td>
+                        <td>${trabajo.vehiculo}</td>
+                        <td><span class="badge badge-${getStatusClass(trabajo.estado)}">${trabajo.estado}</span></td>
+                        <td>${formatCurrency(trabajo.total)}</td>
+                        <td>${formatCurrency(trabajo.margen)} (${margenPorcentaje}%)</td>
+                        <td>${formatDate(trabajo.fechaIngreso)}</td>
+                        <td class="text-right">
+                            <div class="btn-group-right">
+                                <button class="btn btn-sm btn-primary" onclick="viewTrabajo('${trabajo.id}')" title="Ver Trabajo">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="editTrabajo('${trabajo.id}')" title="Editar Trabajo">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-info" onclick="cambiarEstadoTrabajo('${trabajo.id}')" title="Cambiar Estado">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="btn btn-sm btn-success" onclick="crearFacturaFromTrabajo('${trabajo.id}')" ${trabajo.estado !== 'Completado' ? 'disabled' : ''} title="Facturar Trabajo">
+                                    <i class="fas fa-file-invoice"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTrabajo('${trabajo.id}')" title="Eliminar Trabajo">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
             });
         }
 
@@ -3114,6 +3284,22 @@
             document.getElementById('gastoModal').classList.add('show');
             clearGastoForm();
         }
+
+                // Cambiar estado del trabajo
+                function cambiarEstadoTrabajo(trabajoId) {
+                    const estados = ['En Proceso', 'Completado', 'Pendiente'];
+                    const trabajo = appData.trabajos.find(t => t.id === trabajoId);
+                    if (!trabajo) return;
+                    let idx = estados.indexOf(trabajo.estado);
+                    idx = (idx + 1) % estados.length;
+                    trabajo.estado = estados[idx];
+                    // Actualizar en Firebase si corresponde
+                    if (trabajo.firebaseId) {
+                        updateInFirebase('trabajos', trabajo);
+                    }
+                    loadTrabajos();
+                    showToast('Estado actualizado a ' + trabajo.estado, 'info');
+                }
 
         function hideGastoModal() {
             document.getElementById('gastoModal').classList.remove('show');
@@ -3433,21 +3619,38 @@
                     <td>${factura.cliente}</td>
                     <td>${formatCurrency(factura.total)}</td>
                     <td><span class="badge badge-${getStatusClass(factura.estadoPago)}">${factura.estadoPago}</span></td>
+                       <td>${factura.medioPago || 'Efectivo'}</td>
                     <td>${formatDate(factura.fecha)}</td>
                     <td>
-                        <button class="btn btn-sm btn-success" onclick="printFactura('${factura.id}')">
-                            <i class="fas fa-print"></i>
-                        </button>
-                        <button class="btn btn-sm btn-warning" onclick="changeFacturaStatus('${factura.id}')">
-                            <i class="fas fa-credit-card"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteFactura('${factura.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                            <button class="btn btn-sm btn-success" onclick="printFactura('${factura.id}')" title="Imprimir factura">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="changeFacturaStatus('${factura.id}')" title="Cambiar estado de pago">
+                                <i class="fas fa-credit-card"></i>
+                            </button>
+                            <button class="btn btn-sm btn-info" onclick="changeMedioPago('${factura.id}')" title="Cambiar medio de pago">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteFactura('${factura.id}')" title="Eliminar factura">
+                                <i class="fas fa-trash"></i>
+                            </button>
                     </td>
                 `;
             });
         }
+
+            // Cambia el medio de pago y actualiza en Firebase
+            window.changeMedioPago = async function(facturaId) {
+                const factura = appData.facturas.find(f => f.id === facturaId);
+                if (!factura) return;
+                const medios = ['Efectivo', 'MercadoPago', 'Otro'];
+                let idx = medios.indexOf(factura.medioPago);
+                idx = (idx + 1) % medios.length;
+                factura.medioPago = medios[idx];
+                await updateInFirebase('facturas', factura);
+                loadFacturas();
+                showToast(`Medio de pago: ${factura.medioPago}`, 'info');
+            }
 
         // Consultas functionality
         function realizarConsulta() {
@@ -3535,19 +3738,13 @@
             container.innerHTML = html;
         }
 
-        function showConfigurationWizard() {
-            // Show a simple setup if it's the first time
-            if (confirm('¡Bienvenido! ¿Desea configurar los datos básicos del taller ahora?')) {
-                showSection('configuracion');
-            }
-        }
 
         function loadConfiguracion() {
             document.getElementById('confNombreTaller').value = appData.configuracion.nombreTaller;
             document.getElementById('confDireccion').value = appData.configuracion.direccion || '';
             document.getElementById('confTelefono').value = appData.configuracion.telefono || '';
             document.getElementById('confEmail').value = appData.configuracion.email || '';
-            document.getElementById('confIva').value = appData.configuracion.iva || 19;
+            // IVA field removed
         }
 
         async function handleConfiguracionSubmit(e) {
@@ -3558,8 +3755,7 @@
                 nombreTaller: document.getElementById('confNombreTaller').value,
                 direccion: document.getElementById('confDireccion').value,
                 telefono: document.getElementById('confTelefono').value,
-                email: document.getElementById('confEmail').value,
-                iva: parseFloat(document.getElementById('confIva').value) || 19
+                email: document.getElementById('confEmail').value
             };
 
             // Save configuration to Firebase
@@ -3569,15 +3765,69 @@
         }
 
         function loadReportes() {
+            populateMonthSelector();
             generateResumenFinanciero();
-            generateTopClientes();
             generateGastosPorCategoria();
             generateEvolucionMensual();
+            generateEvolucionSemanal();
+        }
+
+        function populateMonthSelector() {
+            const selector = document.getElementById('selectorMes');
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            
+            selector.innerHTML = '';
+            
+            // Generate options for current year and previous year
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            for (let year = currentYear; year >= currentYear - 1; year--) {
+                for (let month = 11; month >= 0; month--) {
+                    if (year === currentYear && month > currentMonth) continue; // Skip future months
+                    
+                    const option = document.createElement('option');
+                    option.value = `${year}-${month}`;
+                    option.textContent = `${meses[month]} ${year}`;
+                    
+                    if (year === currentYear && month === currentMonth) {
+                        option.selected = true;
+                    }
+                    
+                    selector.appendChild(option);
+                }
+            }
+        }
+
+        function updateReportesByMonth() {
+            generateResumenFinanciero();
+            generateGastosPorCategoria();
+        }
+
+        function resetToCurrentMonth() {
+            const currentDate = new Date();
+            const selector = document.getElementById('selectorMes');
+            selector.value = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+            updateReportesByMonth();
+        }
+
+        function getSelectedMonthYear() {
+            const selector = document.getElementById('selectorMes');
+            if (!selector.value) {
+                const currentDate = new Date();
+                return { month: currentDate.getMonth(), year: currentDate.getFullYear() };
+            }
+            
+            const [year, month] = selector.value.split('-');
+            return { month: parseInt(month), year: parseInt(year) };
         }
 
         function generateResumenFinanciero() {
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
+            // Usar mes seleccionado en lugar del mes actual
+            const selectedDate = getSelectedMonthYear();
+            const currentMonth = selectedDate.month;
+            const currentYear = selectedDate.year;
             
             const ingresosMes = appData.trabajos
                 .filter(trabajo => {
@@ -3585,21 +3835,29 @@
                     return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
                 })
                 .reduce((total, trabajo) => total + (trabajo.total || 0), 0);
-                
+
+            const margenMes = appData.trabajos
+                .filter(trabajo => {
+                    const fecha = new Date(trabajo.fecha);
+                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+                })
+                .reduce((total, trabajo) => total + (trabajo.margen || 0), 0);
+
             const gastosMes = appData.gastos
                 .filter(gasto => {
                     const fecha = new Date(gasto.fecha);
                     return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
                 })
                 .reduce((total, gasto) => total + (gasto.monto || 0), 0);
-                
-            const utilidad = ingresosMes - gastosMes;
-            
+
+            const utilidad = margenMes - gastosMes;
+
             document.getElementById('resumenFinanciero').innerHTML = `
                 <div style="display: grid; gap: 1rem;">
-                    <div><strong>Ingresos del Mes:</strong> ${formatCurrency(ingresosMes)}</div>
-                    <div><strong>Gastos del Mes:</strong> ${formatCurrency(gastosMes)}</div>
-                    <div style="border-top: 1px solid var(--border-color); padding-top: 0.5rem;"><strong>Utilidad:</strong> <span style="color: ${utilidad >= 0 ? 'var(--success-color)' : 'var(--error-color)'}">${formatCurrency(utilidad)}</span></div>
+                    <div><strong>Ingresos Totales:</strong> ${formatCurrency(ingresosMes)}</div>
+                    <div><strong>Ganancia Bruta:</strong> ${formatCurrency(margenMes)}</div>
+                    <div><strong>Gastos Totales:</strong> ${formatCurrency(gastosMes)}</div>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 0.5rem;"><strong>Ganancia Neta:</strong> <span style="color: ${utilidad >= 0 ? 'var(--success-color)' : 'var(--error-color)'}">${formatCurrency(utilidad)}</span></div>
                 </div>
             `;
         }
@@ -3632,14 +3890,18 @@
             const gastosPorCategoria = {};
             let totalGastos = 0;
             
-            // Group gastos by category and calculate totals
+            // Filtrar gastos por mes y año seleccionados
+            const selectedDate = getSelectedMonthYear();
             appData.gastos.forEach(gasto => {
-                const categoria = gasto.categoria || 'Sin categoría';
-                if (!gastosPorCategoria[categoria]) {
-                    gastosPorCategoria[categoria] = 0;
+                const fecha = new Date(gasto.fecha);
+                if (fecha.getMonth() === selectedDate.month && fecha.getFullYear() === selectedDate.year) {
+                    const categoria = gasto.categoria || 'Sin categoría';
+                    if (!gastosPorCategoria[categoria]) {
+                        gastosPorCategoria[categoria] = 0;
+                    }
+                    gastosPorCategoria[categoria] += gasto.monto || 0;
+                    totalGastos += gasto.monto || 0;
                 }
-                gastosPorCategoria[categoria] += gasto.monto || 0;
-                totalGastos += gasto.monto || 0;
             });
             
             let html = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
@@ -3670,28 +3932,39 @@
         }
 
         function generateEvolucionMensual() {
-            const currentYear = new Date().getFullYear();
-            const monthlyData = {};
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
             
-            // Initialize 12 months
+            const monthlyData = [];
+            
+            // Generate last 12 months starting from current month
             for (let i = 0; i < 12; i++) {
-                const monthKey = `${currentYear}-${String(i + 1).padStart(2, '0')}`;
-                monthlyData[monthKey] = { ingresos: 0, margen: 0, gastos: 0 };
+                const date = new Date(currentYear, currentMonth - i, 1);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                monthlyData.push({
+                    key: monthKey,
+                    year: date.getFullYear(),
+                    month: date.getMonth(),
+                    monthName: date.toLocaleDateString('es-ES', { month: 'short', year: '2-digit' }),
+                    ingresos: 0,
+                    margen: 0,
+                    gastos: 0
+                });
             }
             
             // Calculate monthly income and margin from trabajos
             appData.trabajos.forEach(trabajo => {
                 const fecha = new Date(trabajo.fechaIngreso || trabajo.fecha);
-                if (fecha.getFullYear() === currentYear) {
-                    const monthKey = `${currentYear}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
-                    if (monthlyData[monthKey]) {
-                        monthlyData[monthKey].ingresos += trabajo.total || 0;
-                        // Margen: si existe margen en el trabajo, lo sumamos; si no, usamos total
-                        if (typeof trabajo.margen === 'number') {
-                            monthlyData[monthKey].margen += trabajo.margen;
-                        } else {
-                            monthlyData[monthKey].margen += trabajo.total || 0;
-                        }
+                const monthData = monthlyData.find(m => 
+                    m.year === fecha.getFullYear() && m.month === fecha.getMonth()
+                );
+                if (monthData) {
+                    monthData.ingresos += trabajo.total || 0;
+                    if (typeof trabajo.margen === 'number') {
+                        monthData.margen += trabajo.margen;
+                    } else {
+                        monthData.margen += trabajo.total || 0;
                     }
                 }
             });
@@ -3699,15 +3972,13 @@
             // Calculate monthly expenses from gastos
             appData.gastos.forEach(gasto => {
                 const fecha = new Date(gasto.fecha);
-                if (fecha.getFullYear() === currentYear) {
-                    const monthKey = `${currentYear}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
-                    if (monthlyData[monthKey]) {
-                        monthlyData[monthKey].gastos += gasto.monto || 0;
-                    }
+                const monthData = monthlyData.find(m => 
+                    m.year === fecha.getFullYear() && m.month === fecha.getMonth()
+                );
+                if (monthData) {
+                    monthData.gastos += gasto.monto || 0;
                 }
             });
-            
-            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
             
             let html = '<div style="overflow-x: auto;"><table style="width: 100%; font-size: 0.9em;"><thead><tr>';
             html += '<th style="padding: 0.5rem; text-align: left;">Mes</th>';
@@ -3717,12 +3988,12 @@
             html += '<th style="padding: 0.5rem; text-align: right;">Ganancia</th>';
             html += '</tr></thead><tbody>';
             
-            Object.entries(monthlyData).forEach(([monthKey, data], index) => {
+            monthlyData.forEach((data, index) => {
                 const gananciaNeta = data.margen - data.gastos;
                 const gananciaClass = gananciaNeta >= 0 ? 'color: #27ae60;' : 'color: #e74c3c;';
                 html += `
                     <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 0.5rem;">${months[index]}</td>
+                        <td style="padding: 0.5rem;">${data.monthName}</td>
                         <td style="padding: 0.5rem; text-align: right;">${formatCurrency(data.ingresos)}</td>
                         <td style="padding: 0.5rem; text-align: right;">${formatCurrency(data.margen)}</td>
                         <td style="padding: 0.5rem; text-align: right;">${formatCurrency(data.gastos)}</td>
@@ -3733,6 +4004,122 @@
             
             html += '</tbody></table></div>';
             document.getElementById('evolucionChart').innerHTML = html;
+            
+            // Agregar icono de tendencia para evolución mensual
+            updateTrendIcon('evolucionMensualTrend', monthlyData);
+        }
+
+        function generateEvolucionSemanal() {
+            const now = new Date();
+            const weeklyData = [];
+            
+            // Generate last 4 weeks starting from current week
+            for (let i = 0; i < 4; i++) {
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() - (i * 7) - now.getDay()); // Start of week (Sunday)
+                weekStart.setHours(0, 0, 0, 0);
+                
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6); // End of week (Saturday)
+                weekEnd.setHours(23, 59, 59, 999);
+                
+                weeklyData.push({ 
+                    ingresos: 0, 
+                    margen: 0, 
+                    gastos: 0, 
+                    weekStart: weekStart, 
+                    weekEnd: weekEnd 
+                });
+            }
+            
+            // Calculate weekly income and margin from trabajos
+            appData.trabajos.forEach(trabajo => {
+                const fecha = new Date(trabajo.fechaIngreso || trabajo.fecha);
+                
+                weeklyData.forEach(data => {
+                    if (fecha >= data.weekStart && fecha <= data.weekEnd) {
+                        data.ingresos += trabajo.total || 0;
+                        if (typeof trabajo.margen === 'number') {
+                            data.margen += trabajo.margen;
+                        } else {
+                            data.margen += trabajo.total || 0;
+                        }
+                    }
+                });
+            });
+            
+            // Calculate weekly expenses from gastos
+            appData.gastos.forEach(gasto => {
+                const fecha = new Date(gasto.fecha);
+                
+                weeklyData.forEach(data => {
+                    if (fecha >= data.weekStart && fecha <= data.weekEnd) {
+                        data.gastos += gasto.monto || 0;
+                    }
+                });
+            });
+            
+            let html = '<div style="overflow-x: auto;"><table style="width: 100%; font-size: 0.9em;"><thead><tr>';
+            html += '<th style="padding: 0.5rem; text-align: left;">Semana</th>';
+            html += '<th style="padding: 0.5rem; text-align: right;">Ingreso</th>';
+            html += '<th style="padding: 0.5rem; text-align: right;">Margen</th>';
+            html += '<th style="padding: 0.5rem; text-align: right;">Gastos</th>';
+            html += '<th style="padding: 0.5rem; text-align: right;">Ganancia</th>';
+            html += '</tr></thead><tbody>';
+            
+            weeklyData.forEach((data, index) => {
+                const gananciaNeta = data.margen - data.gastos;
+                const gananciaClass = gananciaNeta >= 0 ? 'color: #27ae60;' : 'color: #e74c3c;';
+                
+                const weekLabel = `${String(data.weekStart.getDate()).padStart(2, '0')}/${String(data.weekStart.getMonth() + 1).padStart(2, '0')} - ${String(data.weekEnd.getDate()).padStart(2, '0')}/${String(data.weekEnd.getMonth() + 1).padStart(2, '0')}`;
+                
+                html += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 0.5rem;">${weekLabel}</td>
+                        <td style="padding: 0.5rem; text-align: right;">${formatCurrency(data.ingresos)}</td>
+                        <td style="padding: 0.5rem; text-align: right;">${formatCurrency(data.margen)}</td>
+                        <td style="padding: 0.5rem; text-align: right;">${formatCurrency(data.gastos)}</td>
+                        <td style="padding: 0.5rem; text-align: right; ${gananciaClass} font-weight: bold;">${formatCurrency(gananciaNeta)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            document.getElementById('evolucionSemanalChart').innerHTML = html;
+            
+            // Agregar icono de tendencia para evolución semanal
+            updateTrendIcon('evolucionSemanalTrend', weeklyData);
+        }
+
+        function updateTrendIcon(elementId, data) {
+            // Si data es un array, usarlo directamente; si es un objeto, convertir a array
+            const dataArray = Array.isArray(data) ? data : Object.values(data);
+            if (dataArray.length < 2) {
+                document.getElementById(elementId).innerHTML = '';
+                return;
+            }
+            
+            const current = dataArray[0]; // Primer elemento (más reciente)
+            const previous = dataArray[1]; // Segundo elemento (anterior)
+            
+            const currentGanancia = current.margen - current.gastos;
+            const previousGanancia = previous.margen - previous.gastos;
+            
+            let icon = '';
+            let color = '';
+            
+            if (currentGanancia > previousGanancia) {
+                icon = '<i class="fas fa-arrow-up"></i>';
+                color = '#27ae60';
+            } else if (currentGanancia < previousGanancia) {
+                icon = '<i class="fas fa-arrow-down"></i>';
+                color = '#e74c3c';
+            } else {
+                icon = '<i class="fas fa-minus"></i>';
+                color = '#f39c12';
+            }
+            
+            document.getElementById(elementId).innerHTML = `<span style="color: ${color};">${icon}</span>`;
         }
         
         // Presupuestos functionality
@@ -3847,11 +4234,11 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Cantidad</label>
-                    <input type="number" class="form-input repuesto-cant" min="1" value="1" onchange="updatePresupuestoTotals()" oninput="updatePresupuestoTotals()">
+                    <input type="number" class="form-input repuesto-cant" min="0.01" step="0.01" value="1" onchange="updatePresupuestoTotals()" oninput="updatePresupuestoTotals()">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Precio Unitario</label>
-                    <input type="number" class="form-input repuesto-precio" min="0" step="0.01" onchange="updatePresupuestoTotals()" oninput="updatePresupuestoTotals()">
+                    <input type="number" class="form-input repuesto-precio" min="0" step="1" onchange="updatePresupuestoTotals()" oninput="updatePresupuestoTotals()">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Subtotal</label>
@@ -3885,7 +4272,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Valor</label>
-                    <input type="number" class="form-input trabajo-valor" min="0" step="0.01" onchange="updatePresupuestoTotals()" oninput="updatePresupuestoTotals()">
+                    <input type="number" class="form-input trabajo-valor" min="0" step="1" onchange="updatePresupuestoTotals()" oninput="updatePresupuestoTotals()">
                 </div>
                 <div class="form-group" style="display: flex; align-items: end; grid-column: span 2;">
                     <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.remove(); updatePresupuestoTotals();">
@@ -4102,12 +4489,15 @@
             const trabajosActivos = appData.trabajos.filter(t => t.estado === 'En Proceso').length;
             const presupuestosPendientes = appData.presupuestos.filter(p => p.estado === 'Pendiente').length;
             const margenPromedio = calculateMargenPromedio();
+               const facturasPendientes = appData.facturas.filter(f => f.estadoPago === 'Pendiente').length;
 
             // Update dashboard cards
-            document.getElementById('ingresosMes').textContent = formatCurrency(ingresosMes);
-            document.getElementById('trabajosActivos').textContent = trabajosActivos;
-            document.getElementById('presupuestosPendientes').textContent = presupuestosPendientes;
-            document.getElementById('margenPromedio').textContent = margenPromedio + '%';
+            const trabajosActivosEl = document.getElementById('trabajosActivos');
+            if (trabajosActivosEl) trabajosActivosEl.textContent = trabajosActivos;
+            const presupuestosPendientesEl = document.getElementById('presupuestosPendientes');
+            if (presupuestosPendientesEl) presupuestosPendientesEl.textContent = presupuestosPendientes;
+               const facturasPendientesEl = document.getElementById('facturasPendientes');
+               if (facturasPendientesEl) facturasPendientesEl.textContent = facturasPendientes;
 
             // Load recent work
             loadTrabajosRecientes();
@@ -4140,6 +4530,7 @@
             tbody.innerHTML = '';
 
             const recentWork = appData.trabajos
+                .filter(t => t.estado === 'En Proceso')
                 .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
                 .slice(0, 5);
 
