@@ -628,7 +628,7 @@
                     <span>Trabajos</span>
                 </button>
                 
-                <button class="nav-item" data-section="facturacion">
+                <button class="nav-item" data-section="facturacion"> 
                     <i class="fas fa-file-invoice"></i>
                     <span>Facturación</span>
                 </button>
@@ -1080,10 +1080,10 @@
 
                     <div class="card" style="margin: 1.5rem 0;">
                         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                            <h4>Repuestos Utilizados</h4>
+                            <h4>Repuestos/Materiales</h4>
                             <button type="button" class="btn btn-secondary" onclick="addTrabajoRepuesto()">
                                 <i class="fas fa-plus"></i>
-                                Agregar Repuesto
+                                Agregar
                             </button>
                         </div>
                         <div class="card-body">
@@ -1342,10 +1342,10 @@
 
                     <div class="card" style="margin: 1.5rem 0;">
                         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                            <h4>Repuestos</h4>
+                            <h4>Repuestos/Materiales</h4>
                             <button type="button" class="btn btn-secondary" onclick="addRepuesto()">
                                 <i class="fas fa-plus"></i>
-                                Agregar Repuesto
+                                Agregar
                             </button>
                         </div>
                         <div class="card-body">
@@ -1853,7 +1853,7 @@
                                 <tr>
                                     <th>Descripción</th>
                                     <th>Cantidad</th>
-                                    <th>Precio Unit.</th>
+                                    <th>Valor</th>
                                     <th>Subtotal</th>
                                 </tr>
                             </thead>
@@ -2066,14 +2066,13 @@
             if (trabajo.repuestos && trabajo.repuestos.length > 0) {
                 content += `
                     <div class="view-section">
-                        <h5>Repuestos Utilizados</h5>
+                        <h5>Repuestos/Materiales</h5>
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Descripción</th>
                                     <th>Cantidad</th>
-                                    <th>Costo Unit.</th>
-                                    <th>Precio Unit.</th>
+                                    <th>Valor</th>
                                     <th>Subtotal</th>
                                 </tr>
                             </thead>
