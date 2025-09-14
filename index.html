@@ -6,10 +6,11 @@
     <title>Sistema RUTA D</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --primary-color: #2563eb;
-            --primary-dark: #1d4ed8;
+            --primary-color: #3a3b3f;
+            --primary-dark: #2b2c2e;
             --secondary-color: #64748b;
             --success-color: #059669;
             --warning-color: #d97706;
@@ -262,6 +263,15 @@
         .btn-danger {
             background: var(--error-color);
             color: white;
+        }
+
+        .btn-purple {
+            background: #8e44ad;
+            color: white;
+        }
+
+        .btn-purple:hover {
+            background: #7d3c98;
         }
 
         .table-container {
@@ -564,6 +574,70 @@
             background-color: var(--error-color);
             color: white;
         }
+
+        /* Estilos para Venta de Insumos */
+        .form-section {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: var(--bg-color);
+        }
+
+        .totals-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .total-item {
+            padding: 0.5rem;
+            text-align: center;
+            background: var(--bg-color);
+            border-radius: 0.25rem;
+        }
+
+        .venta-insumo-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: end;
+            margin-bottom: 0.5rem;
+            padding: 0.75rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+
+        .venta-insumo-item .form-group {
+            margin-bottom: 0;
+        }
+
+        .item-remove-btn {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            height: 2.5rem;
+            width: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-remove-btn:hover {
+            background: #b91c1c;
+        }
     </style>
 </head>
 <body>
@@ -616,6 +690,11 @@
                 <button class="nav-item active" data-section="dashboard">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
+                </button>
+                
+                <button class="nav-item" data-section="ventas-insumos">
+                    <i class="fas fa-box"></i>
+                    <span>Venta de Insumos</span>
                 </button>
                 
                 <button class="nav-item" data-section="presupuestos">
@@ -695,8 +774,8 @@
                             <div class="stat-label">Presupuestos Pendientes</div>
                         </div>
                            <div class="stat-card">
-                               <div class="stat-icon info">
-                                   <i class="fas fa-money-bill-wave"></i>
+                               <div class="stat-icon warning">
+                                   <i class="fas fa-file-invoice-dollar"></i>
                                </div>
                                <div class="stat-value" id="facturasPendientes">0</div>
                                <div class="stat-label">Facturas Pendientes de Pago</div>
@@ -706,7 +785,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                <h2 class="card-title">Trabajos Recientes</h2>
+                                <h2 class="card-title">Trabajos en Proceso</h2>
                                 <button class="btn btn-primary" onclick="showSection('trabajos')">
                                     Ver Todos
                                 </button>
@@ -730,6 +809,38 @@
                                                 No hay trabajos registrados
                                             </td>
                                         </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Ventas de Insumos Section -->
+                <section id="ventas-insumos-section" class="content-section hidden">
+                    <div class="card">
+                        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 class="card-title">Venta de Insumos</h2>
+                            <button class="btn btn-primary" onclick="showVentaInsumoModal()">
+                                <i class="fas fa-plus"></i>
+                                Nueva Venta
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nº</th>
+                                            <th>Cliente</th>
+                                            <th>Fecha</th>
+                                            <th>Total Costo</th>
+                                            <th>Total Venta</th>
+                                            <th>Margen</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ventasInsumosTable">
                                     </tbody>
                                 </table>
                             </div>
@@ -894,7 +1005,7 @@
                             <div class="form-grid" style="margin-bottom: 1.5rem;">
                                 <div class="form-group">
                                     <label class="form-label">Cliente</label>
-                                    <input type="text" class="form-input" id="consultaCliente" placeholder="Nombre del cliente">
+                                    <input type="text" class="form-input" id="consultaCliente" placeholder="Nombre del cliente" oninput="formatTitleCase(this)">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Fecha Desde</label>
@@ -989,7 +1100,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Teléfono</label>
-                                        <input type="tel" class="form-input" id="confTelefono">
+                                        <input type="tel" class="form-input" id="confTelefono" oninput="formatTelefono(this)">
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Email</label>
@@ -1043,21 +1154,23 @@
                     <div class="form-grid-2">
                         <div class="form-group">
                             <label class="form-label">Cliente *</label>
-                            <input type="text" class="form-input" id="trabajoCliente" list="trabajoClientesList" required oninput="handleTrabajoClienteInput()" onchange="handleTrabajoClienteChange()">
+                            <input type="text" class="form-input" id="trabajoCliente" list="trabajoClientesList" required oninput="handleTrabajoClienteInput(); formatTitleCase(this)" onchange="handleTrabajoClienteChange()">
                             <datalist id="trabajoClientesList">
                             </datalist>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-input" id="trabajoTelefono">
+                            <input type="tel" class="form-input" id="trabajoTelefono" oninput="formatTelefono(this)">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Vehículo *</label>
-                            <input type="text" class="form-input" id="trabajoVehiculo" required>
+                            <input type="text" class="form-input" id="trabajoVehiculo" list="vehiculosList" required oninput="formatTitleCase(this)">
+                            <datalist id="vehiculosList">
+                            </datalist>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Placa</label>
-                            <input type="text" class="form-input" id="trabajoPlaca">
+                            <label class="form-label">Patente</label>
+                            <input type="text" class="form-input" id="trabajoPlaca" oninput="formatPlaca(this)">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Fecha Ingreso</label>
@@ -1199,7 +1312,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Descripción</label>
-                            <input type="text" class="form-input" id="gastoDescripcion">
+                            <input type="text" class="form-input" id="gastoDescripcion" oninput="formatTitleCase(this)">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Monto *</label>
@@ -1248,7 +1361,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Cliente *</label>
-                            <input type="text" class="form-input" id="facturaCliente" required>
+                            <input type="text" class="form-input" id="facturaCliente" required oninput="formatTitleCase(this)">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Fecha Factura *</label>
@@ -1301,6 +1414,112 @@
             </div>
         </div>
     </div>
+    
+    <!-- Modal para Venta de Insumos -->
+    <div class="modal-overlay" id="ventaInsumoModal">
+        <div class="modal" style="width: 90%; max-width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Venta de Insumos</h3>
+                <button class="modal-close" onclick="hideVentaInsumoModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="ventaInsumoForm">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" class="form-input" id="ventaInsumoCliente" oninput="formatTitleCase(this)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-input" id="ventaInsumoTelefono" oninput="formatTelefono(this)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Fecha *</label>
+                            <input type="date" class="form-input" id="ventaInsumoFecha" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Método de Pago</label>
+                            <select class="form-input" id="ventaInsumoMetodoPago">
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="MercadoPago">MercadoPago</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Sección de Insumos -->
+                    <div class="form-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h4>Insumos/Repuestos</h4>
+                            <button type="button" class="btn btn-secondary" onclick="addVentaInsumoItem()">
+                                <i class="fas fa-plus"></i>
+                                Agregar Insumo
+                            </button>
+                        </div>
+                        <div id="ventaInsumoItemsContainer">
+                            <!-- Items se agregan dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Totales -->
+                    <div class="totals-section">
+                        <div class="totals-grid">
+                            <div class="total-item">
+                                <strong>Total Costo: </strong><span id="totalCostoVentaInsumo">$0</span>
+                            </div>
+                            <div class="total-item">
+                                <strong>Total Venta: </strong><span id="totalVentaInsumo">$0</span>
+                            </div>
+                            <div class="total-item">
+                                <strong>Margen: </strong><span id="margenVentaInsumo">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group" style="display: flex !important; justify-content: flex-end !important; gap: 10px; margin-right: 25px; margin-bottom: 25px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideVentaInsumoModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" form="ventaInsumoForm" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Guardar Venta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar venta de insumos -->
+    <div class="modal-overlay" id="ventaInsumoViewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Ver Venta de Insumos</h3>
+                <button class="modal-close" onclick="hideVentaInsumoViewModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="ventaInsumoViewContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" onclick="hideVentaInsumoViewModal()">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="modal-overlay" id="presupuestoModal">
         <div class="modal" style="width: 90%; max-width: 1000px;">
             <div class="modal-header">
@@ -1314,24 +1533,26 @@
                     <div class="form-grid-2">
                         <div class="form-group">
                             <label class="form-label">Cliente *</label>
-                            <input type="text" class="form-input" id="clienteNombre" list="clientesList" required oninput="handleClienteInput()" onchange="handleClienteChange()">
+                            <input type="text" class="form-input" id="clienteNombre" list="clientesList" required oninput="handleClienteInput(); formatTitleCase(this)" onchange="handleClienteChange()">
                             <datalist id="clientesList">
                             </datalist>
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Teléfono</label>
-                            <input type="tel" class="form-input" id="clienteTelefono">
+                            <input type="tel" class="form-input" id="clienteTelefono" oninput="formatTelefono(this)">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Vehículo *</label>
-                            <input type="text" class="form-input" id="vehiculo" required placeholder="Marca Modelo Año">
+                            <input type="text" class="form-input" id="vehiculo" list="vehiculosPresupuestoList" required placeholder="Marca Modelo Año" oninput="formatTitleCase(this)">
+                            <datalist id="vehiculosPresupuestoList">
+                            </datalist>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">Placa</label>
-                            <input type="text" class="form-input" id="placa">
+                            <label class="form-label">Patente</label>
+                            <input type="text" class="form-input" id="placa" oninput="formatPlaca(this)">
                         </div>
                         
                         <div class="form-group" style="grid-column: span 2;">
@@ -1463,6 +1684,7 @@
             trabajos: [],
             gastos: [],
             facturas: [],
+            ventasInsumos: [],
             clientes: [],
             configuracion: {
                 nombreTaller: 'Taller RUTA D',
@@ -1566,6 +1788,9 @@
         }
 
         function initializeApp_Internal() {
+            
+            // Poblar caché de vehículos con datos existentes
+            populateVehiculosCache();
             
             // Update dashboard
             updateDashboard();
@@ -1736,6 +1961,12 @@
                 trabajoForm.addEventListener('submit', handleTrabajoSubmit);
             }
             
+            // Venta Insumo form
+            const ventaInsumoForm = document.getElementById('ventaInsumoForm');
+            if (ventaInsumoForm) {
+                ventaInsumoForm.addEventListener('submit', handleVentaInsumoSubmit);
+            }
+            
             // Gasto form
             const gastoForm = document.getElementById('gastoForm');
             if (gastoForm) {
@@ -1839,7 +2070,7 @@
                         <p><strong>Cliente:</strong> ${presupuesto.cliente.nombre}</p>
                         <p><strong>Teléfono:</strong> ${presupuesto.cliente.telefono || 'N/A'}</p>
                         <p><strong>Vehículo:</strong> ${presupuesto.vehiculo}</p>
-                        <p><strong>Placa:</strong> ${presupuesto.placa || 'N/A'}</p>
+                        <p><strong>Patente:</strong> ${presupuesto.placa || 'N/A'}</p>
                         <p><strong>Fecha:</strong> ${formatDate(presupuesto.fecha)}</p>
                     </div>
             `;
@@ -1971,6 +2202,9 @@
             // Clear form first
             clearPresupuestoForm();
             
+            // Load vehicle suggestions
+            loadVehiculosDatalist('vehiculosPresupuestoList');
+            
             // Pre-fill form for editing - handle different cliente structures
             let clienteNombre = '';
             let clienteTelefono = '';
@@ -2038,6 +2272,254 @@
             }
         }
 
+        function printPresupuesto(presupuestoId) {
+            const presupuesto = appData.presupuestos.find(p => p.id === presupuestoId);
+            if (!presupuesto) return;
+            
+            // Create print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(generatePresupuestoPrint(presupuesto));
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        function generatePresupuestoPrint(presupuesto) {
+            return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Presupuesto ${presupuesto.numero}</title>
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body { 
+                            font-family: 'Arial', sans-serif; 
+                            line-height: 1.6;
+                            color: #333;
+                            background: white;
+                            padding: 30px 20px;
+                            max-width: 700px;
+                            margin: 0 auto;
+                            font-size: 14px;
+                        }
+                        
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #eee;
+                            padding-bottom: 20px;
+                        }
+                        
+                        .header h1 {
+                            font-size: 2.2em;
+                            margin-bottom: 8px;
+                            color: #333;
+                            font-weight: bold;
+                        }
+                        
+                        .header .contact {
+                            font-size: 1em;
+                            color: #666;
+                            line-height: 1.4;
+                        }
+                        
+                        .presupuesto-info {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 25px;
+                            padding: 15px 0;
+                        }
+                        
+                        .client-info, .presupuesto-details {
+                            width: 48%;
+                        }
+                        
+                        .client-info h3, .presupuesto-details h3 {
+                            font-size: 1.3em;
+                            margin-bottom: 12px;
+                            color: #555;
+                            border-bottom: 1px solid #eee;
+                            padding-bottom: 6px;
+                        }
+                        
+                        .info-line {
+                            margin-bottom: 10px;
+                            font-size: 1.1em;
+                        }
+                        
+                        .info-line strong {
+                            color: #333;
+                        }
+                        
+                        .table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        
+                        .table th, .table td {
+                            border: 1px solid #ddd;
+                            padding: 14px 10px;
+                            text-align: left;
+                            font-size: 1em;
+                        }
+                        
+                        .table th {
+                            background: #f8f9fa;
+                            font-weight: bold;
+                            color: #555;
+                        }
+                        
+                        .text-right {
+                            text-align: right;
+                        }
+                        
+                        .section-title {
+                            font-size: 1.3em;
+                            margin: 25px 0 15px 0;
+                            color: #555;
+                            border-bottom: 1px solid #eee;
+                            padding-bottom: 6px;
+                        }
+                        
+                        .total-section {
+                            background: #f8f9fa;
+                            padding: 25px;
+                            border-radius: 8px;
+                            margin-top: 25px;
+                            text-align: right;
+                        }
+                        
+                        .total-amount {
+                            font-size: 1.6em;
+                            font-weight: bold;
+                            color: #2c5530;
+                            margin-top: 12px;
+                        }
+                        
+                        .diagnostico {
+                            background: #f8f9fa;
+                            padding: 18px;
+                            border-radius: 8px;
+                            margin: 20px 0;
+                            border-left: 4px solid #007bff;
+                        }
+                        
+                        .diagnostico h3 {
+                            margin-bottom: 10px;
+                            font-size: 1.2em;
+                        }
+                        
+                        .diagnostico p {
+                            font-size: 1em;
+                            line-height: 1.5;
+                        }
+                        
+                        @media print {
+                            body { 
+                                font-size: 13px;
+                                padding: 20px 10px;
+                            }
+                            .header h1 { 
+                                font-size: 2em; 
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>PRESUPUESTO</h1>
+                        <div class="contact">
+                            ${appData.configuracion.nombreTaller || 'Taller RUTA D'}<br>
+                            ${appData.configuracion.direccion || 'Dirección del Taller'}<br>
+                            Tel: ${appData.configuracion.telefono || '(000) 000-0000'} | Email: ${appData.configuracion.email || 'email@taller.com'}
+                        </div>
+                    </div>
+                    
+                    <div class="presupuesto-info">
+                        <div class="client-info">
+                            <h3>Información del Cliente</h3>
+                            <div class="info-line"><strong>Cliente:</strong> ${presupuesto.cliente.nombre}</div>
+                            <div class="info-line"><strong>Teléfono:</strong> ${presupuesto.cliente.telefono}</div>
+                            <div class="info-line"><strong>Vehículo:</strong> ${presupuesto.vehiculo}</div>
+                            <div class="info-line"><strong>Patente:</strong> ${presupuesto.placa}</div>
+                        </div>
+                        
+                        <div class="presupuesto-details">
+                            <h3>Detalles del Presupuesto</h3>
+                            <div class="info-line"><strong>Número:</strong> ${presupuesto.numero}</div>
+                            <div class="info-line"><strong>Fecha:</strong> ${new Date(presupuesto.fecha).toLocaleDateString()}</div>
+                            <div class="info-line"><strong>Estado:</strong> ${presupuesto.estado}</div>
+                        </div>
+                    </div>
+                    
+                    ${presupuesto.diagnostico ? `
+                        <div class="diagnostico">
+                            <h3>Diagnóstico</h3>
+                            <p>${presupuesto.diagnostico}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${presupuesto.repuestos && presupuesto.repuestos.length > 0 ? `
+                        <h3 class="section-title">Repuestos/Materiales</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th class="text-right">Cantidad</th>
+                                    <th class="text-right">Precio Unit.</th>
+                                    <th class="text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${presupuesto.repuestos.map(item => `
+                                    <tr>
+                                        <td>${item.descripcion}</td>
+                                        <td class="text-right">${item.cantidad}</td>
+                                        <td class="text-right">$${item.precio ? item.precio.toLocaleString() : '0'}</td>
+                                        <td class="text-right">$${item.subtotal ? item.subtotal.toLocaleString() : '0'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : ''}
+                    
+                    ${presupuesto.manoObra && presupuesto.manoObra.length > 0 ? `
+                        <h3 class="section-title">Mano de Obra</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th class="text-right">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${presupuesto.manoObra.map(item => `
+                                    <tr>
+                                        <td>${item.descripcion}</td>
+                                        <td class="text-right">$${item.valor ? item.valor.toLocaleString() : '0'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : ''}
+                    
+                    <div class="total-section">
+                        <div class="total-amount">TOTAL: $${presupuesto.total ? presupuesto.total.toLocaleString() : '0'}</div>
+                        <p style="margin-top: 12px; font-size: 1em; color: #666;">
+                            Este presupuesto tiene una validez de ___ días
+                        </p>
+                    </div>
+                </body>
+                </html>
+            `;
+        }
+
         function viewTrabajo(trabajoId) {
             const trabajo = appData.trabajos.find(t => t.id === trabajoId);
             if (!trabajo) return;
@@ -2057,7 +2539,7 @@
                         <p><strong>Cliente:</strong> ${trabajo.cliente}</p>
                         <p><strong>Teléfono:</strong> ${trabajo.telefono || 'N/A'}</p>
                         <p><strong>Vehículo:</strong> ${trabajo.vehiculo}</p>
-                        <p><strong>Placa:</strong> ${trabajo.placa || 'N/A'}</p>
+                        <p><strong>Patente:</strong> ${trabajo.placa || 'N/A'}</p>
                         <p><strong>Fecha Ingreso:</strong> ${formatDate(trabajo.fechaIngreso)}</p>
                         <p><strong>Diagnóstico:</strong> ${trabajo.diagnostico || 'N/A'}</p>
                     </div>
@@ -2157,6 +2639,9 @@
             
             // Clear form first
             clearTrabajoForm();
+            
+            // Load vehicle suggestions
+            loadVehiculosDatalist('vehiculosList');
             
             // Pre-fill form for editing
             document.getElementById('trabajoCliente').value = trabajo.cliente;
@@ -2579,6 +3064,211 @@
             `;
         }
 
+        async function shareFacturaWhatsApp(facturaId) {
+            const factura = appData.facturas.find(f => f.id === facturaId);
+            if (!factura) return;
+            
+            // Obtener teléfono: primero desde factura directamente, luego desde trabajo asociado, finalmente desde clientes
+            let telefono = '';
+            if (factura.telefono) {
+                telefono = factura.telefono;
+            } else if (factura.trabajo && factura.trabajo.telefono) {
+                telefono = factura.trabajo.telefono;
+            } else {
+                // Buscar en clientes por nombre
+                const cliente = appData.clientes.find(c => c.nombre === factura.cliente);
+                if (cliente) {
+                    telefono = cliente.telefono;
+                }
+            }
+            
+            if (!telefono) {
+                showToast('No se encontró número de teléfono para este cliente', 'error');
+                return;
+            }
+            
+            // Limpiar el número de teléfono (quitar espacios, guiones, etc.)
+            telefono = telefono.replace(/[^\d]/g, '');
+            
+            // Verificar que tenga al menos 10 dígitos
+            if (telefono.length < 10) {
+                showToast('El número de teléfono no es válido', 'error');
+                return;
+            }
+            
+            // Formatear número para WhatsApp (agregar código de país si no lo tiene)
+            if (!telefono.startsWith('54')) {
+                telefono = '54' + telefono;
+            }
+            
+            showToast('Generando imagen de la factura...', 'info');
+            
+            try {
+                // Generar imagen de la factura
+                const imageDataUrl = await generateFacturaImage(factura);
+                
+                // Crear mensaje simple para acompañar la imagen
+                const mensaje = `¡Hola ${factura.cliente}!
+
+                Adjunto tu recibo #${factura.numero} por ${formatCurrency(factura.total)}, junto a su respectivo detalle.`;
+                
+                // Codificar el mensaje para URL
+                const mensajeCodificado = encodeURIComponent(mensaje);
+                
+                // Crear URL de WhatsApp
+                const whatsappUrl = `https://wa.me/${telefono}?text=${mensajeCodificado}`;
+                
+                // Crear un enlace temporal para descargar la imagen
+                const link = document.createElement('a');
+                link.download = `factura-${factura.numero}.png`;
+                link.href = imageDataUrl;
+                
+                // Mostrar opciones al usuario
+                if (confirm('¡Imagen de la factura generada! ¿Qué deseas hacer? • OK: Abrir WhatsApp y descargar imagen • Cancelar: Solo abrir WhatsApp')) {
+                    // Descargar la imagen
+                    link.click();
+                }
+                
+                // Abrir WhatsApp
+                window.open(whatsappUrl, '_blank');
+                
+                showToast('¡Listo! Imagen generada y WhatsApp abierto', 'success');
+                
+            } catch (error) {
+                console.error('Error generando imagen:', error);
+                showToast('Error al generar la imagen de la factura', 'error');
+            }
+        }
+
+        async function generateFacturaImage(factura) {
+            // Crear un contenedor temporal para la factura
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.top = '-9999px';
+            container.style.left = '-9999px';
+            container.style.width = '800px';
+            container.style.backgroundColor = 'white';
+            container.style.padding = '40px';
+            container.style.fontFamily = 'Arial, sans-serif';
+            
+            // Generar el HTML de la factura optimizado para imagen
+            container.innerHTML = generateFacturaImageHTML(factura);
+            
+            // Agregar al DOM temporalmente
+            document.body.appendChild(container);
+            
+            try {
+                // Generar la imagen con html2canvas
+                const canvas = await html2canvas(container, {
+                    backgroundColor: '#ffffff',
+                    scale: 2, // Mayor calidad
+                    useCORS: true,
+                    logging: false,
+                    width: 800,
+                    height: container.scrollHeight
+                });
+                
+                // Convertir a data URL
+                const imageDataUrl = canvas.toDataURL('image/png', 0.95);
+                
+                return imageDataUrl;
+                
+            } finally {
+                // Limpiar el DOM
+                document.body.removeChild(container);
+            }
+        }
+
+        function generateFacturaImageHTML(factura) {
+            return `
+                <div style="max-width: 700px; margin: 0 auto; font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px;">
+                        <h1 style="font-size: 2.2em; margin-bottom: 8px; color: #333; font-weight: bold;">FACTURA</h1>
+                        <div style="font-size: 1em; color: #666; line-height: 1.4;">
+                            ${appData.configuracion.nombreTaller || 'Taller RUTA D'}<br>
+                            ${appData.configuracion.direccion || 'Dirección del Taller'}<br>
+                            Tel: ${appData.configuracion.telefono || '(000) 000-0000'} | Email: ${appData.configuracion.email || 'email@taller.com'}
+                        </div>
+                    </div>
+                    
+                    <!-- Información de la factura -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 25px; padding: 15px 0;">
+                        <div style="width: 48%;">
+                            <h3 style="font-size: 1.3em; margin-bottom: 12px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 6px;">Información del Cliente</h3>
+                            <div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Cliente:</strong> ${factura.cliente}</div>
+                            <div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Teléfono:</strong> ${factura.telefono || 'N/A'}</div>
+                            ${factura.trabajo ? `<div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Vehículo:</strong> ${factura.trabajo.vehiculo || 'N/A'}</div>` : ''}
+                            ${factura.trabajo ? `<div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Patente:</strong> ${factura.trabajo.placa || 'N/A'}</div>` : ''}
+                        </div>
+                        
+                        <div style="width: 48%;">
+                            <h3 style="font-size: 1.3em; margin-bottom: 12px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 6px;">Detalles de la Factura</h3>
+                            <div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Número:</strong> ${factura.numero}</div>
+                            <div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Fecha:</strong> ${formatDate(factura.fecha)}</div>
+                            <div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Estado:</strong> ${factura.estadoPago}</div>
+                            <div style="margin-bottom: 10px; font-size: 1.1em;"><strong>Medio de Pago:</strong> ${factura.medioPago || 'Efectivo'}</div>
+                        </div>
+                    </div>
+                    
+                    ${factura.trabajo && factura.trabajo.repuestos && factura.trabajo.repuestos.length > 0 ? `
+                        <h3 style="font-size: 1.3em; margin: 25px 0 15px 0; color: #555; border-bottom: 1px solid #eee; padding-bottom: 6px;">Repuestos/Materiales</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                            <thead>
+                                <tr>
+                                    <th style="border: 1px solid #ddd; padding: 14px 10px; text-align: left; font-size: 1em; background: #f8f9fa; font-weight: bold; color: #555;">Descripción</th>
+                                    <th style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em; background: #f8f9fa; font-weight: bold; color: #555;">Cantidad</th>
+                                    <th style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em; background: #f8f9fa; font-weight: bold; color: #555;">Precio Unit.</th>
+                                    <th style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em; background: #f8f9fa; font-weight: bold; color: #555;">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${factura.trabajo.repuestos.map(item => `
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 14px 10px; font-size: 1em;">${item.descripcion}</td>
+                                        <td style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em;">${item.cantidad}</td>
+                                        <td style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em;">$${item.precio ? item.precio.toLocaleString() : '0'}</td>
+                                        <td style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em;">$${item.subtotalPrecio ? item.subtotalPrecio.toLocaleString() : '0'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : ''}
+                    
+                    ${factura.trabajo && factura.trabajo.manoObra && factura.trabajo.manoObra.length > 0 ? `
+                        <h3 style="font-size: 1.3em; margin: 25px 0 15px 0; color: #555; border-bottom: 1px solid #eee; padding-bottom: 6px;">Mano de Obra</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                            <thead>
+                                <tr>
+                                    <th style="border: 1px solid #ddd; padding: 14px 10px; text-align: left; font-size: 1em; background: #f8f9fa; font-weight: bold; color: #555;">Descripción</th>
+                                    <th style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em; background: #f8f9fa; font-weight: bold; color: #555;">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${factura.trabajo.manoObra.map(item => `
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 14px 10px; font-size: 1em;">${item.descripcion}</td>
+                                        <td style="border: 1px solid #ddd; padding: 14px 10px; text-align: right; font-size: 1em;">$${item.valor ? item.valor.toLocaleString() : '0'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    ` : ''}
+                    
+                    <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; margin-top: 25px; text-align: right;">
+                        <div style="font-size: 1.6em; font-weight: bold; color: #2c5530; margin-top: 12px;">TOTAL: ${formatCurrency(factura.total)}</div>
+                        <div style="margin-top: 12px; font-size: 1em; color: #666;">
+                            ${factura.estadoPago === 'Pagado' ? '✓ PAGADO' : 'PENDIENTE DE PAGO'}
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #999;">
+                        Gracias por confiar en nosotros | ${appData.configuracion.nombreTaller || 'Taller RUTA D'}
+                    </div>
+                </div>
+            `;
+        }
+
         async function changeFacturaStatus(facturaId) {
             const factura = appData.facturas.find(f => f.id === facturaId);
             if (!factura) return;
@@ -2856,7 +3546,8 @@
                 facturacion: 'Facturación',
                 consultas: 'Consulta de Trabajos',
                 reportes: 'Reportes y Análisis',
-                configuracion: 'Configuración'
+                configuracion: 'Configuración',
+                'ventas-insumos': 'Venta de Insumos'
             };
             return titles[section] || 'Dashboard';
         }
@@ -2888,6 +3579,9 @@
                 case 'configuracion':
                     loadConfiguracion();
                     break;
+                case 'ventas-insumos':
+                    loadVentasInsumos();
+                    break;
             }
         }
 
@@ -2906,6 +3600,7 @@
                     appData.gastos = data.gastos ? Object.values(data.gastos) : [];
                     appData.facturas = data.facturas ? Object.values(data.facturas) : [];
                     appData.clientes = data.clientes ? Object.values(data.clientes) : [];
+                    appData.ventasInsumos = data.ventasInsumos ? Object.values(data.ventasInsumos) : [];
                     appData.configuracion = data.configuracion || appData.configuracion;
                     
                     showToast('Datos sincronizados desde Firebase', 'success');
@@ -3082,11 +3777,320 @@
         //     }
         // }
 
+        // Venta de Insumos functionality
+        function showVentaInsumoModal() {
+            clearVentaInsumoForm();
+            document.getElementById('ventaInsumoModal').classList.add('show');
+            addVentaInsumoItem(); // Agregar al menos un item
+        }
+
+        function hideVentaInsumoModal() {
+            document.getElementById('ventaInsumoModal').classList.remove('show');
+        }
+
+        function clearVentaInsumoForm() {
+            document.getElementById('ventaInsumoForm').reset();
+            document.getElementById('ventaInsumoFecha').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ventaInsumoItemsContainer').innerHTML = '';
+            document.getElementById('ventaInsumoForm').removeAttribute('data-editing-id');
+            document.querySelector('#ventaInsumoModal .modal-title').textContent = 'Nueva Venta de Insumos';
+            updateVentaInsumoTotals();
+        }
+
+        function addVentaInsumoItem() {
+            const container = document.getElementById('ventaInsumoItemsContainer');
+            const itemIndex = container.children.length;
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'venta-insumo-item';
+            itemDiv.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Descripción *</label>
+                    <input type="text" class="form-input venta-insumo-desc" required onchange="updateVentaInsumoTotals()" oninput="formatTitleCase(this)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cantidad *</label>
+                    <input type="number" class="form-input venta-insumo-cant" min="1" value="1" required onchange="updateVentaInsumoTotals()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Costo Unit. *</label>
+                    <input type="number" class="form-input venta-insumo-costo" min="0" step="0.01" required onchange="updateVentaInsumoTotals()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Precio Unit. *</label>
+                    <input type="number" class="form-input venta-insumo-precio" min="0" step="0.01" required onchange="updateVentaInsumoTotals()">
+                </div>
+                <button type="button" class="item-remove-btn" onclick="removeVentaInsumoItem(this)" title="Eliminar item">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            container.appendChild(itemDiv);
+            updateVentaInsumoTotals();
+        }
+
+        function removeVentaInsumoItem(button) {
+            const container = document.getElementById('ventaInsumoItemsContainer');
+            if (container.children.length > 1) {
+                button.closest('.venta-insumo-item').remove();
+                updateVentaInsumoTotals();
+            } else {
+                showToast('Debe mantener al menos un insumo', 'warning');
+            }
+        }
+
+        function updateVentaInsumoTotals() {
+            const items = document.querySelectorAll('.venta-insumo-item');
+            let totalCosto = 0;
+            let totalVenta = 0;
+            
+            items.forEach(item => {
+                const cantidad = parseFloat(item.querySelector('.venta-insumo-cant').value) || 0;
+                const costo = parseFloat(item.querySelector('.venta-insumo-costo').value) || 0;
+                const precio = parseFloat(item.querySelector('.venta-insumo-precio').value) || 0;
+                
+                totalCosto += cantidad * costo;
+                totalVenta += cantidad * precio;
+            });
+            
+            const margen = totalVenta - totalCosto;
+            
+            document.getElementById('totalCostoVentaInsumo').textContent = formatCurrency(totalCosto);
+            document.getElementById('totalVentaInsumo').textContent = formatCurrency(totalVenta);
+            document.getElementById('margenVentaInsumo').textContent = formatCurrency(margen);
+        }
+
+        async function handleVentaInsumoSubmit(e) {
+            e.preventDefault();
+            
+            const items = document.querySelectorAll('.venta-insumo-item');
+            const insumos = [];
+            
+            items.forEach(item => {
+                const descripcion = item.querySelector('.venta-insumo-desc').value;
+                const cantidad = parseFloat(item.querySelector('.venta-insumo-cant').value);
+                const costo = parseFloat(item.querySelector('.venta-insumo-costo').value);
+                const precio = parseFloat(item.querySelector('.venta-insumo-precio').value);
+                
+                if (descripcion && cantidad && costo >= 0 && precio >= 0) {
+                    insumos.push({
+                        descripcion,
+                        cantidad,
+                        costo,
+                        precio,
+                        subtotalCosto: cantidad * costo,
+                        subtotalPrecio: cantidad * precio
+                    });
+                }
+            });
+            
+            if (insumos.length === 0) {
+                showToast('Debe agregar al menos un insumo válido', 'error');
+                return;
+            }
+            
+            const totalCosto = insumos.reduce((sum, item) => sum + item.subtotalCosto, 0);
+            const totalVenta = insumos.reduce((sum, item) => sum + item.subtotalPrecio, 0);
+            const margen = totalVenta - totalCosto;
+            
+            const editingId = document.getElementById('ventaInsumoForm').getAttribute('data-editing-id');
+            
+            const ventaInsumo = {
+                id: editingId || Date.now().toString(),
+                numero: editingId ? appData.ventasInsumos.find(v => v.id === editingId).numero : getNextVentaInsumoNumber(),
+                cliente: document.getElementById('ventaInsumoCliente').value,
+                telefono: document.getElementById('ventaInsumoTelefono').value,
+                fecha: document.getElementById('ventaInsumoFecha').value,
+                metodoPago: document.getElementById('ventaInsumoMetodoPago').value,
+                insumos: insumos,
+                costoTotal: totalCosto,
+                total: totalVenta,
+                margen: margen
+            };
+            
+            if (editingId) {
+                // Update existing
+                const index = appData.ventasInsumos.findIndex(v => v.id === editingId);
+                appData.ventasInsumos[index] = ventaInsumo;
+                await updateInFirebase('ventasInsumos', ventaInsumo);
+                showToast('Venta actualizada exitosamente', 'success');
+            } else {
+                // Create new
+                appData.ventasInsumos.push(ventaInsumo);
+                await saveToFirebase('ventasInsumos', ventaInsumo);
+                showToast('Venta guardada exitosamente', 'success');
+            }
+            
+            hideVentaInsumoModal();
+            loadVentasInsumos();
+            updateDashboard();
+        }
+
+        function getNextVentaInsumoNumber() {
+            const lastNumber = appData.ventasInsumos.reduce((max, v) => {
+                const num = parseInt(v.numero) || 0;
+                return num > max ? num : max;
+            }, 0);
+            return (lastNumber + 1).toString().padStart(4, '0');
+        }
+
+        function loadVentasInsumos() {
+            const tbody = document.getElementById('ventasInsumosTable');
+            tbody.innerHTML = '';
+
+            appData.ventasInsumos.forEach(venta => {
+                const margenPorcentaje = venta.total > 0 ? ((venta.margen / venta.total) * 100).toFixed(1) : 0;
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${venta.numero}</td>
+                    <td>${venta.cliente}</td>
+                    <td>${formatDate(venta.fecha)}</td>
+                    <td>${formatCurrency(venta.costoTotal || 0)}</td>
+                    <td>${formatCurrency(venta.total || 0)}</td>
+                    <td>${formatCurrency(venta.margen || 0)} (${margenPorcentaje}%)</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="viewVentaInsumo('${venta.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-warning" onclick="editVentaInsumo('${venta.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteVentaInsumo('${venta.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+        }
+
+        function viewVentaInsumo(ventaId) {
+            const venta = appData.ventasInsumos.find(v => v.id === ventaId);
+            if (!venta) return;
+            
+            let content = `
+                <div class="view-details">
+                    <div class="view-header">
+                        <h4>VENTA DE INSUMOS #${venta.numero}</h4>
+                    </div>
+                    
+                    <div class="view-section">
+                        <h5>Información de la Venta</h5>
+                        <p><strong>Cliente:</strong> ${venta.cliente}</p>
+                        <p><strong>Teléfono:</strong> ${venta.telefono || 'N/A'}</p>
+                        <p><strong>Fecha:</strong> ${formatDate(venta.fecha)}</p>
+                        <p><strong>Método de Pago:</strong> ${venta.metodoPago}</p>
+                    </div>
+                    
+                    <div class="view-section">
+                        <h5>Insumos/Repuestos</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Cantidad</th>
+                                    <th>Costo Unit.</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Subtotal Costo</th>
+                                    <th>Subtotal Venta</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            venta.insumos.forEach(insumo => {
+                content += `
+                    <tr>
+                        <td>${insumo.descripcion}</td>
+                        <td>${insumo.cantidad}</td>
+                        <td>${formatCurrency(insumo.costo)}</td>
+                        <td>${formatCurrency(insumo.precio)}</td>
+                        <td>${formatCurrency(insumo.subtotalCosto)}</td>
+                        <td>${formatCurrency(insumo.subtotalPrecio)}</td>
+                    </tr>
+                `;
+            });
+            
+            const margenPorcentaje = venta.total > 0 ? ((venta.margen / venta.total) * 100).toFixed(1) : 0;
+            content += `
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="view-section">
+                        <div class="view-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <p><strong>Total Costo:</strong> ${formatCurrency(venta.costoTotal || 0)}</p>
+                            </div>
+                            <div>
+                                <p><strong>Total Venta:</strong> ${formatCurrency(venta.total || 0)}</p>
+                            </div>
+                            <div>
+                                <p><strong>Margen:</strong> ${formatCurrency(venta.margen || 0)} (${margenPorcentaje}%)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('ventaInsumoViewContent').innerHTML = content;
+            document.getElementById('ventaInsumoViewModal').classList.add('show');
+        }
+
+        function hideVentaInsumoViewModal() {
+            document.getElementById('ventaInsumoViewModal').classList.remove('show');
+        }
+
+        function editVentaInsumo(ventaId) {
+            const venta = appData.ventasInsumos.find(v => v.id === ventaId);
+            if (!venta) return;
+            
+            clearVentaInsumoForm();
+            
+            document.getElementById('ventaInsumoCliente').value = venta.cliente;
+            document.getElementById('ventaInsumoTelefono').value = venta.telefono || '';
+            document.getElementById('ventaInsumoFecha').value = venta.fecha;
+            document.getElementById('ventaInsumoMetodoPago').value = venta.metodoPago;
+            
+            // Cargar insumos
+            venta.insumos.forEach(insumo => {
+                addVentaInsumoItem();
+                const lastItem = document.getElementById('ventaInsumoItemsContainer').lastElementChild;
+                lastItem.querySelector('.venta-insumo-desc').value = insumo.descripcion;
+                lastItem.querySelector('.venta-insumo-cant').value = insumo.cantidad;
+                lastItem.querySelector('.venta-insumo-costo').value = insumo.costo;
+                lastItem.querySelector('.venta-insumo-precio').value = insumo.precio;
+            });
+            
+            updateVentaInsumoTotals();
+            
+            document.getElementById('ventaInsumoForm').setAttribute('data-editing-id', ventaId);
+            document.querySelector('#ventaInsumoModal .modal-title').textContent = 'Editar Venta de Insumos';
+            document.getElementById('ventaInsumoModal').classList.add('show');
+        }
+
+        async function deleteVentaInsumo(ventaId) {
+            const venta = appData.ventasInsumos.find(v => v.id === ventaId);
+            if (!venta) return;
+            
+            if (confirm(`¿Está seguro de eliminar la venta #${venta.numero} de ${venta.cliente}?`)) {
+                appData.ventasInsumos = appData.ventasInsumos.filter(v => v.id !== ventaId);
+                
+                if (venta.firebaseId) {
+                    await deleteFromFirebase('ventasInsumos', venta.firebaseId);
+                }
+                
+                loadVentasInsumos();
+                updateDashboard();
+                showToast('Venta eliminada exitosamente', 'success');
+            }
+        }
+
         // Trabajos functionality
         function showTrabajoModal() {
             document.getElementById('trabajoModal').classList.add('show');
             clearTrabajoForm();
             loadClientesForTrabajoAutocomplete();
+            loadVehiculosDatalist('vehiculosList');
         }
 
         function hideTrabajoModal() {
@@ -3229,7 +4233,6 @@
                     const lastRow = document.getElementById('trabajoRepuestosContainer').lastElementChild;
                     lastRow.querySelector('.trabajo-repuesto-desc').value = repuesto.descripcion;
                     lastRow.querySelector('.trabajo-repuesto-cant').value = repuesto.cantidad;
-                    lastRow.querySelector('.trabajo-repuesto-costo').value = repuesto.precio * 0.7; // 70% as cost
                     lastRow.querySelector('.trabajo-repuesto-precio').value = repuesto.precio;
                 });
             }
@@ -3277,7 +4280,7 @@
             row.innerHTML = `
                 <div class="form-group">
                     <label class="form-label">Descripción</label>
-                    <input type="text" class="form-input trabajo-repuesto-desc" required>
+                    <input type="text" class="form-input trabajo-repuesto-desc" required oninput="formatTitleCase(this)">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Cantidad</label>
@@ -3314,7 +4317,7 @@
             row.innerHTML = `
                 <div class="form-group">
                     <label class="form-label">Descripción</label>
-                    <input type="text" class="form-input trabajo-trabajo-desc" required>
+                    <input type="text" class="form-input trabajo-trabajo-desc" required oninput="formatTitleCase(this)">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Valor</label>
@@ -3378,6 +4381,9 @@
                 total: calculatePrecioTotal(),
                 margen: calculateMargen()
             };
+
+            // Guardar vehículo en caché
+            saveVehiculoToCache(trabajoData.vehiculo);
 
             if (editingId) {
                 // Update existing trabajo
@@ -3536,8 +4542,8 @@
                                 <button class="btn btn-sm btn-warning" onclick="editTrabajo('${trabajo.id}')" title="Editar Trabajo">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-sm btn-info" onclick="cambiarEstadoTrabajo('${trabajo.id}')" title="Cambiar Estado">
-                                    <i class="fas fa-sync-alt"></i>
+                                <button class="btn btn-sm btn-purple" onclick="cambiarEstadoTrabajo('${trabajo.id}')" title="Cambiar Estado">
+                                    <i class="fas fa-exchange-alt"></i>
                                 </button>
                                 <button class="btn btn-sm btn-success" onclick="crearFacturaFromTrabajo('${trabajo.id}')" ${trabajo.estado !== 'Completado' ? 'disabled' : ''} title="Facturar Trabajo">
                                     <i class="fas fa-file-invoice"></i>
@@ -3560,7 +4566,7 @@
 
                 // Cambiar estado del trabajo
                 function cambiarEstadoTrabajo(trabajoId) {
-                    const estados = ['En Proceso', 'Completado', 'Pendiente'];
+                    const estados = ['En Proceso', 'Completado']; // Removido 'Pendiente'
                     const trabajo = appData.trabajos.find(t => t.id === trabajoId);
                     if (!trabajo) return;
                     let idx = estados.indexOf(trabajo.estado);
@@ -3843,9 +4849,11 @@
                 numero: getNextFacturaNumber(),
                 trabajoId: trabajoId,
                 cliente: document.getElementById('facturaCliente').value,
+                telefono: trabajo ? trabajo.telefono : '', // Incluir teléfono del trabajo
                 fecha: document.getElementById('facturaFecha').value,
                 total: trabajo ? trabajo.total : 0,
                 estadoPago: 'Pendiente',
+                trabajo: trabajo, // Incluir objeto trabajo completo
                 detalles: trabajo ? {
                     repuestos: trabajo.repuestos,
                     manoObra: trabajo.manoObra
@@ -3898,10 +4906,13 @@
                             <button class="btn btn-sm btn-success" onclick="printFactura('${factura.id}')" title="Imprimir factura">
                                 <i class="fas fa-print"></i>
                             </button>
+                            <button class="btn btn-sm btn-info" onclick="shareFacturaWhatsApp('${factura.id}')" title="Compartir por WhatsApp">
+                                <i class="fab fa-whatsapp"></i>
+                            </button>
                             <button class="btn btn-sm btn-warning" onclick="changeFacturaStatus('${factura.id}')" title="Cambiar estado de pago">
                                 <i class="fas fa-credit-card"></i>
                             </button>
-                            <button class="btn btn-sm btn-info" onclick="changeMedioPago('${factura.id}')" title="Cambiar medio de pago">
+                            <button class="btn btn-sm btn-purple" onclick="changeMedioPago('${factura.id}')" title="Cambiar medio de pago">
                                 <i class="fas fa-money-bill-wave"></i>
                             </button>
                             <button class="btn btn-sm btn-danger" onclick="deleteFactura('${factura.id}')" title="Eliminar factura">
@@ -4102,19 +5113,41 @@
             const currentMonth = selectedDate.month;
             const currentYear = selectedDate.year;
             
-            const ingresosMes = appData.trabajos
+            const ingresosTrabajo = appData.trabajos
                 .filter(trabajo => {
                     const fecha = new Date(trabajo.fecha);
                     return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
                 })
                 .reduce((total, trabajo) => total + (trabajo.total || 0), 0);
+                
+            const ingresosVentaInsumos = appData.ventasInsumos
+                .filter(venta => {
+                    const fecha = new Date(venta.fecha);
+                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+                })
+                .reduce((total, venta) => total + parseFloat(venta.total || 0), 0);
 
-            const margenMes = appData.trabajos
+            const ingresosMes = ingresosTrabajo + ingresosVentaInsumos;
+
+            const margenTrabajo = appData.trabajos
                 .filter(trabajo => {
                     const fecha = new Date(trabajo.fecha);
                     return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
                 })
                 .reduce((total, trabajo) => total + (trabajo.margen || 0), 0);
+                
+            const margenVentaInsumos = appData.ventasInsumos
+                .filter(venta => {
+                    const fecha = new Date(venta.fecha);
+                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+                })
+                .reduce((total, venta) => {
+                    const costo = parseFloat(venta.costoTotal || 0);
+                    const precio = parseFloat(venta.total || 0);
+                    return total + (precio - costo);
+                }, 0);
+
+            const margenMes = margenTrabajo + margenVentaInsumos;
 
             const gastosMes = appData.gastos
                 .filter(gasto => {
@@ -4125,14 +5158,109 @@
 
             const utilidad = margenMes - gastosMes;
 
+            // Calcular ingresos por medio de pago
+            const ingresosPorMedioPago = calculateIngresosPorMedioPago(currentMonth, currentYear);
+
             document.getElementById('resumenFinanciero').innerHTML = `
                 <div style="display: grid; gap: 1rem;">
-                    <div><strong>Ingresos Totales:</strong> ${formatCurrency(ingresosMes)}</div>
+                    <div>Ingresos Trabajos: ${formatCurrency(ingresosTrabajo)}</div>
+                    <div>Ingresos Venta Insumos: ${formatCurrency(ingresosVentaInsumos)}</div>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+                        <div style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleIngresosMedioPago()">
+                            <strong>Ingresos Totales:</strong> 
+                            <div>
+                                <span>${formatCurrency(ingresosMes)}</span>
+                                <i id="ingresosMedioPagoIcon" class="fas fa-chevron-down" style="margin-left: 10px; font-size: 0.8em; color: var(--primary-color);"></i>
+                            </div>
+                        </div>
+                        <div id="ingresosMedioPagoDetails" style="display: none; margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; border-left: 3px solid var(--primary-color);">
+                            ${generateIngresosMedioPagoHtml(ingresosPorMedioPago, ingresosMes)}
+                        </div>
+                    </div>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 0.5rem;">Ganancia Trabajos: ${formatCurrency(margenTrabajo)}</div>
+                    <div>Ganancia Venta Insumos: ${formatCurrency(margenVentaInsumos)}</div>
                     <div><strong>Ganancia Bruta:</strong> ${formatCurrency(margenMes)}</div>
-                    <div><strong>Gastos Totales:</strong> ${formatCurrency(gastosMes)}</div>
+                    <div style="border-top: 1px solid var(--border-color); padding-top: 0.5rem;"><strong>Gastos Totales:</strong> ${formatCurrency(gastosMes)}</div>
                     <div style="border-top: 1px solid var(--border-color); padding-top: 0.5rem;"><strong>Ganancia Neta:</strong> <span style="color: ${utilidad >= 0 ? 'var(--success-color)' : 'var(--error-color)'}">${formatCurrency(utilidad)}</span></div>
                 </div>
             `;
+        }
+
+        function calculateIngresosPorMedioPago(currentMonth, currentYear) {
+            const mediosPago = {
+                'Efectivo': 0,
+                'MercadoPago': 0,
+                'Otro': 0
+            };
+
+            // Sumar ingresos de facturas por medio de pago
+            appData.facturas
+                .filter(factura => {
+                    const fecha = new Date(factura.fecha);
+                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+                })
+                .forEach(factura => {
+                    const medioPago = factura.medioPago || 'Otro';
+                    mediosPago[medioPago] = (mediosPago[medioPago] || 0) + parseFloat(factura.total || 0);
+                });
+
+            // Sumar ingresos de ventas de insumos por método de pago
+            appData.ventasInsumos
+                .filter(venta => {
+                    const fecha = new Date(venta.fecha);
+                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+                })
+                .forEach(venta => {
+                    const metodoPago = venta.metodoPago || 'Otro';
+                    // Normalizar nombres de métodos de pago
+                    let medioPago = metodoPago === 'Efectivo' ? 'Efectivo' : 
+                                   metodoPago === 'MercadoPago' ? 'MercadoPago' : 'Otro';
+                    mediosPago[medioPago] = (mediosPago[medioPago] || 0) + parseFloat(venta.total || 0);
+                });
+
+            return mediosPago;
+        }
+
+        function generateIngresosMedioPagoHtml(ingresosPorMedioPago, ingresosTotales) {
+            let html = '<div style="display: grid; gap: 8px;">';
+            
+            Object.entries(ingresosPorMedioPago).forEach(([medioPago, monto]) => {
+                const porcentaje = ingresosTotales > 0 ? ((monto / ingresosTotales) * 100).toFixed(1) : 0;
+                const colorBarra = medioPago === 'Efectivo' ? '#27ae60' : 
+                                  medioPago === 'MercadoPago' ? '#3498db' : '#95a5a6';
+                
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 12px; height: 12px; background: ${colorBarra}; border-radius: 2px;"></div>
+                            <span style="font-weight: 500;">${medioPago}:</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <div>${formatCurrency(monto)}</div>
+                            <div style="font-size: 0.85em; color: #666;">${porcentaje}%</div>
+                        </div>
+                    </div>
+                    <div style="background: #e9ecef; border-radius: 10px; height: 6px; margin-bottom: 8px;">
+                        <div style="background: ${colorBarra}; height: 100%; border-radius: 10px; width: ${porcentaje}%; transition: width 0.3s ease;"></div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+
+        function toggleIngresosMedioPago() {
+            const details = document.getElementById('ingresosMedioPagoDetails');
+            const icon = document.getElementById('ingresosMedioPagoIcon');
+            
+            if (details.style.display === 'none') {
+                details.style.display = 'block';
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                details.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+            }
         }
 
         function generateTopClientes() {
@@ -4242,6 +5370,18 @@
                 }
             });
             
+            // Calculate monthly income and margin from ventas de insumos
+            appData.ventasInsumos.forEach(venta => {
+                const fecha = new Date(venta.fecha);
+                const monthData = monthlyData.find(m => 
+                    m.year === fecha.getFullYear() && m.month === fecha.getMonth()
+                );
+                if (monthData) {
+                    monthData.ingresos += parseFloat(venta.total || 0);
+                    monthData.margen += parseFloat(venta.margen || 0);
+                }
+            });
+            
             // Calculate monthly expenses from gastos
             appData.gastos.forEach(gasto => {
                 const fecha = new Date(gasto.fecha);
@@ -4317,6 +5457,18 @@
                         } else {
                             data.margen += trabajo.total || 0;
                         }
+                    }
+                });
+            });
+            
+            // Calculate weekly income and margin from ventas de insumos
+            appData.ventasInsumos.forEach(venta => {
+                const fecha = new Date(venta.fecha);
+                
+                weeklyData.forEach(data => {
+                    if (fecha >= data.weekStart && fecha <= data.weekEnd) {
+                        data.ingresos += parseFloat(venta.total || 0);
+                        data.margen += parseFloat(venta.margen || 0);
                     }
                 });
             });
@@ -4400,6 +5552,7 @@
             document.getElementById('presupuestoModal').classList.add('show');
             clearPresupuestoForm();
             loadClientesForAutocomplete();
+            loadVehiculosDatalist('vehiculosPresupuestoList');
         }
 
         function hidePresupuestoModal() {
@@ -4503,7 +5656,7 @@
             row.innerHTML = `
                 <div class="form-group">
                     <label class="form-label">Descripción</label>
-                    <input type="text" class="form-input repuesto-desc" required>
+                    <input type="text" class="form-input repuesto-desc" required oninput="formatTitleCase(this)">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Cantidad</label>
@@ -4541,7 +5694,7 @@
             row.innerHTML = `
                 <div class="form-group">
                     <label class="form-label">Descripción</label>
-                    <input type="text" class="form-input trabajo-desc" required>
+                    <input type="text" class="form-input trabajo-desc" required oninput="formatTitleCase(this)">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Valor</label>
@@ -4616,6 +5769,9 @@
                 subtotal: calculateSubtotal(),
                 total: calculateTotal()
             };
+
+            // Guardar vehículo en caché
+            saveVehiculoToCache(presupuestoData.vehiculo);
 
             if (editingId) {
                 // Update existing presupuesto
@@ -4745,6 +5901,9 @@
                         <button class="btn btn-sm btn-primary" onclick="viewPresupuesto('${presupuesto.id}')">
                             <i class="fas fa-eye"></i>
                         </button>
+                        <button class="btn btn-sm btn-success" onclick="printPresupuesto('${presupuesto.id}')" title="Imprimir presupuesto">
+                            <i class="fas fa-print"></i>
+                        </button>
                         <button class="btn btn-sm btn-warning" onclick="editPresupuesto('${presupuesto.id}')">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -4762,40 +5921,70 @@
             const trabajosActivos = appData.trabajos.filter(t => t.estado === 'En Proceso').length;
             const presupuestosPendientes = appData.presupuestos.filter(p => p.estado === 'Pendiente').length;
             const margenPromedio = calculateMargenPromedio();
-               const facturasPendientes = appData.facturas.filter(f => f.estadoPago === 'Pendiente').length;
+            const facturasPendientes = appData.facturas.filter(f => f.estadoPago === 'Pendiente').length;
 
             // Update dashboard cards
             const trabajosActivosEl = document.getElementById('trabajosActivos');
             if (trabajosActivosEl) trabajosActivosEl.textContent = trabajosActivos;
             const presupuestosPendientesEl = document.getElementById('presupuestosPendientes');
             if (presupuestosPendientesEl) presupuestosPendientesEl.textContent = presupuestosPendientes;
-               const facturasPendientesEl = document.getElementById('facturasPendientes');
-               if (facturasPendientesEl) facturasPendientesEl.textContent = facturasPendientes;
+            const facturasPendientesEl = document.getElementById('facturasPendientes');
+            if (facturasPendientesEl) facturasPendientesEl.textContent = facturasPendientes;
 
             // Load recent work
             loadTrabajosRecientes();
+        }
+
+        function calculateVentasInsumosMes() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            return appData.ventasInsumos
+                .filter(venta => {
+                    const ventaDate = new Date(venta.fecha);
+                    return ventaDate.getMonth() === currentMonth && ventaDate.getFullYear() === currentYear;
+                })
+                .reduce((total, venta) => total + parseFloat(venta.total || 0), 0);
         }
 
         function calculateIngresosMes() {
             const currentMonth = new Date().getMonth();
             const currentYear = new Date().getFullYear();
             
-            return appData.trabajos
+            const ingresosTrabajo = appData.trabajos
                 .filter(trabajo => {
                     const fecha = new Date(trabajo.fecha);
                     return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
                 })
                 .reduce((total, trabajo) => total + (trabajo.total || 0), 0);
+                
+            const ingresosVentaInsumos = appData.ventasInsumos
+                .filter(venta => {
+                    const fecha = new Date(venta.fecha);
+                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
+                })
+                .reduce((total, venta) => total + parseFloat(venta.total || 0), 0);
+                
+            return ingresosTrabajo + ingresosVentaInsumos;
         }
 
         function calculateMargenPromedio() {
-            if (appData.trabajos.length === 0) return 0;
+            const totalTrabajos = appData.trabajos.length;
+            const totalVentasInsumos = appData.ventasInsumos.length;
             
-            const totalMargen = appData.trabajos.reduce((total, trabajo) => {
+            if (totalTrabajos === 0 && totalVentasInsumos === 0) return 0;
+            
+            const margenTrabajos = appData.trabajos.reduce((total, trabajo) => {
                 return total + (trabajo.margen || 0);
             }, 0);
             
-            return Math.round(totalMargen / appData.trabajos.length);
+            const margenVentasInsumos = appData.ventasInsumos.reduce((total, venta) => {
+                return total + (venta.margen || 0);
+            }, 0);
+            
+            const totalItems = totalTrabajos + totalVentasInsumos;
+            return Math.round((margenTrabajos + margenVentasInsumos) / totalItems);
         }
 
         function loadTrabajosRecientes() {
@@ -4835,6 +6024,78 @@
 
         function formatDate(dateString) {
             return new Date(dateString).toLocaleDateString('es-CO');
+        }
+
+        // Funciones de caché para vehículos
+        function getVehiculosCache() {
+            const cache = localStorage.getItem('vehiculos_cache');
+            return cache ? JSON.parse(cache) : [];
+        }
+
+        function saveVehiculoToCache(vehiculo) {
+            if (!vehiculo || vehiculo.trim() === '') return;
+            
+            const vehiculos = getVehiculosCache();
+            const vehiculoNormalizado = vehiculo.trim().toUpperCase();
+            
+            // Evitar duplicados
+            if (!vehiculos.some(v => v.toUpperCase() === vehiculoNormalizado)) {
+                vehiculos.push(vehiculo.trim());
+                // Mantener solo los últimos 50 vehículos
+                if (vehiculos.length > 50) {
+                    vehiculos.splice(0, vehiculos.length - 50);
+                }
+                localStorage.setItem('vehiculos_cache', JSON.stringify(vehiculos));
+            }
+        }
+
+        function loadVehiculosDatalist(datalistId) {
+            const datalist = document.getElementById(datalistId);
+            if (!datalist) return;
+            
+            const vehiculos = getVehiculosCache();
+            datalist.innerHTML = '';
+            
+            vehiculos.forEach(vehiculo => {
+                const option = document.createElement('option');
+                option.value = vehiculo;
+                datalist.appendChild(option);
+            });
+        }
+
+        function populateVehiculosCache() {
+            // Extraer vehículos de presupuestos existentes
+            appData.presupuestos.forEach(presupuesto => {
+                if (presupuesto.vehiculo) {
+                    saveVehiculoToCache(presupuesto.vehiculo);
+                }
+            });
+            
+            // Extraer vehículos de trabajos existentes
+            appData.trabajos.forEach(trabajo => {
+                if (trabajo.vehiculo) {
+                    saveVehiculoToCache(trabajo.vehiculo);
+                }
+            });
+        }
+
+        // Funciones de formateo automático
+        function formatPlaca(input) {
+            // Solo letras y números, letras en mayúscula
+            let value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            input.value = value;
+        }
+
+        function formatTelefono(input) {
+            // Solo números
+            let value = input.value.replace(/[^0-9]/g, '');
+            input.value = value;
+        }
+
+        function formatTitleCase(input) {
+            // Primera letra de cada palabra en mayúscula, resto en minúscula
+            let value = input.value.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+            input.value = value;
         }
 
         function getStatusClass(status) {
