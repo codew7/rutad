@@ -75,6 +75,30 @@
             font-size: 1.25rem;
         }
 
+        /* Responsive Logo Container */
+        .sidebar-logo-container {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 1rem;
+            box-sizing: border-box;
+        }
+
+        .sidebar-logo {
+            max-width: calc(100% - 2rem);
+            width: auto;
+            height: auto;
+            max-height: 20vh; /* 20% of viewport height */
+            min-height: 60px;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
         .nav-menu {
             padding: 1rem 0;
         }
@@ -439,7 +463,40 @@
             .sidebar.collapsed {
                 transform: translateX(-100%);
             }
+            /* Responsive logo adjustments for tablets */
+            .sidebar-logo {
+                max-height: 15vh; /* Smaller on tablets */
+                min-height: 50px;
+            }
     /* Fin del bloque @media */
+        }
+
+        /* Additional responsive breakpoints for logo */
+        @media (max-height: 800px) {
+            .sidebar-logo {
+                max-height: 12vh; /* Even smaller on short screens */
+                min-height: 40px;
+            }
+            .sidebar-logo-container {
+                bottom: 1rem; /* Less bottom spacing on short screens */
+            }
+        }
+
+        @media (max-height: 600px) {
+            .sidebar-logo {
+                max-height: 8vh; /* Very small on very short screens */
+                min-height: 30px;
+            }
+            .sidebar-logo-container {
+                bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-logo {
+                max-height: 10vh; /* Smaller on mobile devices */
+                min-height: 40px;
+            }
         }
 
         /* Hidden class */
@@ -683,39 +740,6 @@
             <div class="sidebar-logo-container">
                 <img src="Logo.png" alt="Logo" class="sidebar-logo">
             </div>
-        /* Logo en menú lateral */
-        .sidebar-logo-container {
-            position: absolute;
-            bottom: 2rem;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            pointer-events: none;
-            z-index: 10;
-        }
-        .sidebar-logo {
-            max-width: 80%;
-            height: auto;
-            max-height: 120px;
-            display: block;
-            margin: 0 auto;
-            object-fit: contain;
-            pointer-events: auto;
-        }
-        @media (max-width: 1024px) {
-            .sidebar-logo {
-                max-width: 60%;
-                max-height: 80px;
-            }
-        }
-        @media (max-width: 600px) {
-            .sidebar-logo {
-                max-width: 50%;
-                max-height: 50px;
-            }
-        }
             
             <nav class="nav-menu">
                 <button class="nav-item active" data-section="dashboard">
