@@ -2684,7 +2684,7 @@
             document.getElementById('trabajoModal').classList.add('show');
         }
 
-        function deleteTrabajo(trabajoId) {
+        async function deleteTrabajo(trabajoId) {
             const trabajo = appData.trabajos.find(t => t.id === trabajoId);
             if (!trabajo) return;
             
@@ -2693,7 +2693,11 @@
                 appData.trabajos = appData.trabajos.filter(t => t.id !== trabajoId);
                 
                 // Delete from Firebase
-                deleteFromFirebase(`trabajos/${trabajoId}`);
+                const firebaseKey = trabajo.firebaseId || trabajo.id;
+                const deleted = await deleteFromFirebase('trabajos', firebaseKey);
+                if (!deleted) {
+                    showToast('No se pudo eliminar el trabajo en Firebase', 'error');
+                }
                 
                 // Reload the table
                 loadTrabajos();
@@ -3283,7 +3287,7 @@
             showToast(`Estado actualizado a: ${factura.estadoPago}`, 'success');
         }
 
-        function deleteFactura(facturaId) {
+        async function deleteFactura(facturaId) {
             const factura = appData.facturas.find(f => f.id === facturaId);
             if (!factura) return;
             
@@ -3292,7 +3296,11 @@
                 appData.facturas = appData.facturas.filter(f => f.id !== facturaId);
                 
                 // Delete from Firebase
-                deleteFromFirebase(`facturas/${facturaId}`);
+                const firebaseKey = factura.firebaseId || factura.id;
+                const deleted = await deleteFromFirebase('facturas', firebaseKey);
+                if (!deleted) {
+                    showToast('No se pudo eliminar la factura en Firebase', 'error');
+                }
                 
                 // Reload the table
                 loadFacturas();
@@ -4075,8 +4083,10 @@
             if (confirm(`¿Está seguro de eliminar la venta #${venta.numero} de ${venta.cliente}?`)) {
                 appData.ventasInsumos = appData.ventasInsumos.filter(v => v.id !== ventaId);
                 
-                if (venta.firebaseId) {
-                    await deleteFromFirebase('ventasInsumos', venta.firebaseId);
+                const firebaseKey = venta.firebaseId || venta.id;
+                const deleted = await deleteFromFirebase('ventasInsumos', firebaseKey);
+                if (!deleted) {
+                    showToast('No se pudo eliminar la venta en Firebase', 'error');
                 }
                 
                 loadVentasInsumos();
@@ -4545,7 +4555,7 @@
                                 <button class="btn btn-sm btn-purple" onclick="cambiarEstadoTrabajo('${trabajo.id}')" title="Cambiar Estado">
                                     <i class="fas fa-exchange-alt"></i>
                                 </button>
-                                <button class="btn btn-sm btn-success" onclick="crearFacturaFromTrabajo('${trabajo.id}')" ${trabajo.estado !== 'Completado' ? 'disabled' : ''} title="Facturar Trabajo">
+                                <button class="btn btn-sm btn-success" onclick="crearFacturaFromTrabajo('${trabajo.id}')" title="Facturar Trabajo">
                                     <i class="fas fa-file-invoice"></i>
                                 </button>
                                 <button class="btn btn-sm btn-danger" onclick="deleteTrabajo('${trabajo.id}')" title="Eliminar Trabajo">
@@ -4799,9 +4809,9 @@
             }
             
             if (trabajo.manoObra && trabajo.manoObra.length > 0) {
-                detallesHtml += '<h5>Mano de Obra</h5><div class="table-container"><table class="table"><thead><tr><th>Descripción</th><th>Horas</th><th>Valor/Hora</th><th>Subtotal</th></tr></thead><tbody>';
+                detallesHtml += '<h5>Mano de Obra</h5><div class="table-container"><table class="table"><thead><tr><th>Descripción</th><th>Valor</th></tr></thead><tbody>';
                 trabajo.manoObra.forEach(mano => {
-                    detallesHtml += `<tr><td>${mano.descripcion}</td><td>${mano.horas}</td><td>${formatCurrency(mano.valor)}</td><td>${formatCurrency(mano.subtotal)}</td></tr>`;
+                    detallesHtml += `<tr><td>${mano.descripcion}</td><td>${formatCurrency(mano.valor)}</td></tr>`;
                 });
                 detallesHtml += '</tbody></table></div>';
             }
@@ -4812,16 +4822,25 @@
             document.getElementById('facturaDetalles').innerHTML = detallesHtml;
         }
 
-        function crearFacturaFromTrabajo(trabajoId) {
+        async function crearFacturaFromTrabajo(trabajoId) {
             const trabajo = appData.trabajos.find(t => t.id === trabajoId);
             if (!trabajo) {
                 alert('Trabajo no encontrado');
                 return;
             }
             
+            // Si el trabajo no está completado, marcarlo como completado automáticamente
             if (trabajo.estado !== 'Completado') {
-                alert('Solo se pueden facturar trabajos completados');
-                return;
+                trabajo.estado = 'Completado';
+                
+                // Actualizar en Firebase si tiene firebaseId
+                if (trabajo.firebaseId) {
+                    await updateInFirebase('trabajos', trabajo);
+                }
+                
+                // Recargar la tabla para mostrar el estado actualizado
+                loadTrabajos();
+                showToast('Trabajo marcado como completado automáticamente', 'info');
             }
             
             // Show modal and clear form first
