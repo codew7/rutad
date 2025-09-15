@@ -680,9 +680,42 @@
                     <span>Taller RUTA D</span>
                 </div>
             </div>
-            <div style="position: absolute; bottom: 2rem; left: 0; width: 100%; display: flex; justify-content: center; align-items: center;">
+            <div class="sidebar-logo-container">
                 <img src="Logo.png" alt="Logo" class="sidebar-logo">
             </div>
+        /* Logo en menú lateral */
+        .sidebar-logo-container {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .sidebar-logo {
+            max-width: 80%;
+            height: auto;
+            max-height: 120px;
+            display: block;
+            margin: 0 auto;
+            object-fit: contain;
+            pointer-events: auto;
+        }
+        @media (max-width: 1024px) {
+            .sidebar-logo {
+                max-width: 60%;
+                max-height: 80px;
+            }
+        }
+        @media (max-width: 600px) {
+            .sidebar-logo {
+                max-width: 50%;
+                max-height: 50px;
+            }
+        }
             
             <nav class="nav-menu">
                 <button class="nav-item active" data-section="dashboard">
