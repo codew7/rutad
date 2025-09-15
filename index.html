@@ -3357,7 +3357,7 @@
 
             .login-container {
                 width: 100%;
-                max-width: 400px;
+                max-width: 600px;
                 padding: 2rem;
             }
 
@@ -4928,11 +4928,11 @@
                             <button class="btn btn-sm btn-info" onclick="shareFacturaWhatsApp('${factura.id}')" title="Compartir por WhatsApp">
                                 <i class="fab fa-whatsapp"></i>
                             </button>
-                            <button class="btn btn-sm btn-warning" onclick="changeFacturaStatus('${factura.id}')" title="Cambiar estado de pago">
-                                <i class="fas fa-credit-card"></i>
+                            <button class="btn btn-sm btn-purple" onclick="changeFacturaStatus('${factura.id}')" title="Cambiar estado de pago">
+                                <i class="fas fa-exchange-alt"></i>
                             </button>
-                            <button class="btn btn-sm btn-purple" onclick="changeMedioPago('${factura.id}')" title="Cambiar medio de pago">
-                                <i class="fas fa-money-bill-wave"></i>
+                            <button class="btn btn-sm btn-warning" onclick="changeMedioPago('${factura.id}')" title="Cambiar medio de pago">
+                                <i class="fas fa-credit-card"></i>
                             </button>
                             <button class="btn btn-sm btn-danger" onclick="deleteFactura('${factura.id}')" title="Eliminar factura">
                                 <i class="fas fa-trash"></i>
@@ -4950,9 +4950,10 @@
                 let idx = medios.indexOf(factura.medioPago);
                 idx = (idx + 1) % medios.length;
                 factura.medioPago = medios[idx];
+                factura.estadoPago = 'Pagado'; // Cambia el estado automáticamente
                 await updateInFirebase('facturas', factura);
                 loadFacturas();
-                showToast(`Medio de pago: ${factura.medioPago}`, 'info');
+                showToast(`Medio de pago: ${factura.medioPago}. Estado de pago: PAGADO`, 'info');
             }
 
         // Consultas functionality
