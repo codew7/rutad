@@ -843,7 +843,10 @@
                                     <tbody id="ventasInsumosTable">
                                     </tbody>
                                 </table>
-                            </div>
+                                    <div style="text-align: center; font-size: 0.95em; color: #888; margin-top: 18px;">
+                                        Sistema de gestión RUTA D v1.0 - 2025
+                                    </div>
+                                </section>
                         </div>
                     </div>
                 </section>
@@ -1115,7 +1118,7 @@
                                             <i class="fas fa-upload"></i>
                                             Importar Backup
                                         </button>
-                                        <button type="button" class="btn btn-primary" onclick="createBackup()">
+                                        <button type="button" class="btn btn-primary" onclick="createFirebaseBackup()">
                                             <i class="fas fa-download"></i>
                                             Crear Backup
                                         </button>
@@ -5154,13 +5157,20 @@
             const currentMonth = selectedDate.month;
             const currentYear = selectedDate.year;
             
-            const ingresosTrabajo = appData.trabajos
-                .filter(trabajo => {
-                    const fecha = new Date(trabajo.fecha);
-                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
-                })
-                .reduce((total, trabajo) => total + (trabajo.total || 0), 0);
-                
+            // Solo tomar trabajos facturados y pagados desde facturas
+            const facturasPagadas = appData.facturas.filter(f => f.estadoPago === 'Pagado' && new Date(f.fecha).getMonth() === currentMonth && new Date(f.fecha).getFullYear() === currentYear);
+
+            const ingresosTrabajo = facturasPagadas.reduce((total, f) => total + (f.total || 0), 0);
+
+            const margenTrabajo = facturasPagadas.reduce((total, f) => {
+                // Si la factura tiene el objeto trabajo y margen, usarlo
+                if (f.trabajo && typeof f.trabajo.margen === 'number') {
+                    return total + f.trabajo.margen;
+                }
+                // Si no, usar total como margen
+                return total + (f.total || 0);
+            }, 0);
+
             const ingresosVentaInsumos = appData.ventasInsumos
                 .filter(venta => {
                     const fecha = new Date(venta.fecha);
@@ -5168,15 +5178,6 @@
                 })
                 .reduce((total, venta) => total + parseFloat(venta.total || 0), 0);
 
-            const ingresosMes = ingresosTrabajo + ingresosVentaInsumos;
-
-            const margenTrabajo = appData.trabajos
-                .filter(trabajo => {
-                    const fecha = new Date(trabajo.fecha);
-                    return fecha.getMonth() === currentMonth && fecha.getFullYear() === currentYear;
-                })
-                .reduce((total, trabajo) => total + (trabajo.margen || 0), 0);
-                
             const margenVentaInsumos = appData.ventasInsumos
                 .filter(venta => {
                     const fecha = new Date(venta.fecha);
@@ -5188,6 +5189,7 @@
                     return total + (precio - costo);
                 }, 0);
 
+            const ingresosMes = ingresosTrabajo + ingresosVentaInsumos;
             const margenMes = margenTrabajo + margenVentaInsumos;
 
             const gastosMes = appData.gastos
