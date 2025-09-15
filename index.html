@@ -4775,13 +4775,26 @@
             const select = document.getElementById('facturaTrabajoId');
             select.innerHTML = '<option value="">Seleccionar trabajo completado</option>';
             
-            const trabajosCompletados = appData.trabajos.filter(t => t.estado === 'Completado');
+            const trabajosCompletados = appData.trabajos.filter(t => {
+                // Solo mostrar trabajos completados que no tengan factura
+                const tieneFactura = appData.facturas.some(f => f.trabajoId === t.id);
+                return t.estado === 'Completado' && !tieneFactura;
+            });
+            
             trabajosCompletados.forEach(trabajo => {
                 const option = document.createElement('option');
                 option.value = trabajo.id;
                 option.textContent = `${trabajo.numero} - ${trabajo.cliente} - ${trabajo.vehiculo}`;
                 select.appendChild(option);
             });
+            
+            if (trabajosCompletados.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay trabajos completados sin facturar';
+                option.disabled = true;
+                select.appendChild(option);
+            }
         }
 
         function loadTrabajoForFactura() {
@@ -4829,6 +4842,13 @@
                 return;
             }
             
+            // Verificar si ya existe una factura para este trabajo
+            const facturaExistente = appData.facturas.find(f => f.trabajoId === trabajoId);
+            if (facturaExistente) {
+                showToast('Este trabajo ya ha sido facturado. Para generar una nueva factura, primero elimine la factura anterior.', 'error');
+                return;
+            }
+            
             // Si el trabajo no está completado, marcarlo como completado automáticamente
             if (trabajo.estado !== 'Completado') {
                 trabajo.estado = 'Completado';
@@ -4872,6 +4892,7 @@
                 fecha: document.getElementById('facturaFecha').value,
                 total: trabajo ? trabajo.total : 0,
                 estadoPago: 'Pendiente',
+                medioPago: 'Efectivo', // Valor por defecto
                 trabajo: trabajo, // Incluir objeto trabajo completo
                 detalles: trabajo ? {
                     repuestos: trabajo.repuestos,
