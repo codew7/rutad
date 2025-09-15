@@ -495,7 +495,6 @@
         .toast.error { border-left: 4px solid var(--error-color); }
         .toast.warning { border-left: 4px solid var(--warning-color); }
 
-        /* View Modal Styles */
         .view-details {
             line-height: 1.6;
         }
@@ -575,7 +574,6 @@
             color: white;
         }
 
-        /* Estilos para Venta de Insumos */
         .form-section {
             margin: 1.5rem 0;
             padding: 1rem;
@@ -843,10 +841,7 @@
                                     <tbody id="ventasInsumosTable">
                                     </tbody>
                                 </table>
-                                    <div style="text-align: center; font-size: 0.95em; color: #888; margin-top: 18px;">
-                                        Sistema de gestión RUTA D v1.0 - 2025
-                                    </div>
-                                </section>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1118,7 +1113,7 @@
                                             <i class="fas fa-upload"></i>
                                             Importar Backup
                                         </button>
-                                        <button type="button" class="btn btn-primary" onclick="createFirebaseBackup()">
+                                        <button type="button" class="btn btn-primary" onclick="createBackup()">
                                             <i class="fas fa-download"></i>
                                             Crear Backup
                                         </button>
@@ -1133,6 +1128,9 @@
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                        <div class="card-footer" style="text-align: center; padding: 1rem; border-top: 1px solid var(--border-color); color: #666; font-size: 0.8em;">
+                            Sistema de administración RUTA D v1.0 - 2025
                         </div>
                     </div>
                 </section>
@@ -3744,6 +3742,28 @@
             } catch (error) {
                 console.error('Error creating Firebase backup:', error);
                 showToast('Error al crear backup de Firebase', 'error');
+            }
+        }
+
+        function createBackup() {
+            try {
+                // Create backup of current local data
+                const dataStr = JSON.stringify(appData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `backup-local-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                showToast('Backup local creado exitosamente', 'success');
+            } catch (error) {
+                console.error('Error creating backup:', error);
+                showToast('Error al crear backup local', 'error');
             }
         }
 
